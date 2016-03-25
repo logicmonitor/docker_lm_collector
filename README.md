@@ -6,6 +6,9 @@ Docker image capable of installing and running a LogicMonitor collector
 ## Website
 http://www.logicmonitor.com
 
+## Docker repository
+https://hub.docker.com/r/logicmonitor/lm_collector/
+
 ## Requirements
 You must have a LogicMonitor account
 
