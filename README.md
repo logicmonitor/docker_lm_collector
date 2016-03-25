@@ -3,6 +3,9 @@
 ## Overview
 Docker image capable of installing and running a LogicMonitor collector
 
+## Website
+http://www.logicmonitor.com
+
 ## Requirements
 You must have a LogicMonitor account
 
