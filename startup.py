@@ -68,12 +68,15 @@ def follow(stream):
 
 # gracefully catch and handle docker stop
 def signal_term_handler(signal, frame):
-    if "cleanup" in os.environ:
-        # remove the collector
-        params = getParams()
-        collector = Collector(params)
-        sys.exit(collector.remove())
     logging.debug("SIGTERM caught.")
+    if ("cleanup" in os.environ and
+       os.environ["cleanup"] is not "False" and
+       os.environ["cleanup"] is not "false"):
+            logging.debug("Uninstalling collector.")
+            # remove the collector
+            params = getParams()
+            collector = Collector(params)
+            sys.exit(collector.remove())
     else:
         logging.debug("Exiting.")
         sys.exit(0)
