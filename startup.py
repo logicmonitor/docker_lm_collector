@@ -1,3 +1,4 @@
+import logging
 from logicmonitor_core.Collector import Collector
 import os
 import signal
@@ -25,11 +26,14 @@ def startup(params):
 
     # detect whether collector already exists
     if os.path.isdir("/usr/local/logicmonitor/agent"):
+        logging.debug("Collector already installed. Starting.")
         # start collector
         collector.start()
     else:
+        logging.debug("Installing collector.")
         # create collector
         collector.create()
+
 
 # https://code.activestate.com/recipes/578424-tailing-a-live-log-file-with-python/
 def tail(outfile):
@@ -63,7 +67,9 @@ def signal_term_handler(signal, frame):
         params = getParams()
         collector = Collector(params)
         sys.exit(collector.remove())
+    logging.debug("SIGTERM caught.")
     else:
+        logging.debug("Exiting.")
         sys.exit(0)
 
 signal.signal(signal.SIGTERM, signal_term_handler)
