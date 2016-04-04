@@ -81,26 +81,24 @@ def signal_term_handler(signal, frame):
         logging.debug("Exiting.")
         sys.exit(0)
 
-signal.signal(signal.SIGTERM, signal_term_handler)
-
 
 def main():
     # validate credentials exist
     if ("company" in os.environ and
         "username" in os.environ and
         "password" in os.environ):
+            # install and/or start collector
+            params = getParams()
+            startup(params)
 
-        params = getParams()
-
-        # start and install collector
-        startup(params)
-
-        # tail log file.
-        # No need to check success. Program will exit if above command fails
-        tail(logfile)
+            # tail log file.
+            # No need to check success. Program will exit if above command fails
+            tail(logfile)
 
     else:
         print("Please specify company, username, and password")
         sys.exit(1)
 
+# TERM handler
+signal.signal(signal.SIGTERM, signal_term_handler)
 main()
