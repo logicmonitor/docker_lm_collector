@@ -22,11 +22,15 @@ username - your LogicMonitor username
 
 password - your LogicMonitor password
 
+cleanup - if this is non-null, the collector will remove itself from the portal
+when the container is stopped.
+
 ## Example
 ```
 docker run --name lm_collector -d \
--e company=<your-company> \
--e username=<your-username> \
--e password=<your-password> \
+    -e company=<your-company> \
+    -e username=<your-username> \
+    -e password=<your-password> \
+    - cleanup=true \
 logicmonitor/lm_collector:latest
 ```
