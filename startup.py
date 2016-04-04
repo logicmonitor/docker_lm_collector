@@ -1,6 +1,7 @@
 import logging
 from logicmonitor_core.Collector import Collector
 import os
+import socket
 import signal
 import sys
 import time
@@ -17,6 +18,11 @@ def getParams():
     params["description"] = ""
     if "description" in os.environ:
         params["description"] = os.environ["description"]
+    else:
+        # put this here to set a default description. The portal will default
+        # to this on its own, but for the purpose of doing an uninstall, it's
+        # best to do it here as well.
+        params["description"] = socket.gethostname()
     return params
 
 
