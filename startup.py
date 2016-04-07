@@ -86,13 +86,12 @@ def main():
     # validate credentials exist
     if ("company" in os.environ and
         "username" in os.environ and
-        "password" in os.environ):
+       "password" in os.environ):
             # install and/or start collector
             params = getParams()
             startup(params)
 
-            # tail log file.
-            # No need to check success. Program will exit if above command fails
+            # tail log file if successful
             tail(logfile)
 
     else:
