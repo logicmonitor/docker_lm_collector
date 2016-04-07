@@ -1,8 +1,10 @@
-import logging
 from logicmonitor_core.Collector import Collector
+import logging
 import os
-import socket
+import select
 import signal
+import socket
+import subprocess
 import sys
 import time
 
@@ -41,29 +43,17 @@ def startup(params):
         collector.create()
 
 
-# https://code.activestate.com/recipes/578424-tailing-a-live-log-file-with-python/
-def tail(outfile):
-    with open(outfile, 'rt') as following:
-        following.seek(-64, 2)
-        for line in follow(following):
-            sys.stdout.write(line)
+# live tail a file
+def tail(filename):
+    f = subprocess.Popen(["tail", "-F", filename],
+                         stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    p = select.poll()
+    p.register(f.stdout)
 
-
-def follow(stream):
-    # Follow the live contents of a text file
-    line = ''
-    for block in iter(lambda: stream.read(1024), None):
-        if '\n' in block:
-            # Only enter this block if we have at least one line to yield.
-            # The +[''] part is to catch the corner case of when a block
-            # ends in a newline, in which case it would repeat a line.
-            for line in (line+block).splitlines(True)+['']:
-                if line.endswith('\n'):
-                    yield line
-            # When exiting the for loop, 'line' has any remaninig text.
-        elif not block:
-            # Wait for data.
-            time.sleep(1.0)
+    while True:
+        if p.poll(1):
+            sys.stdout.write(f.stdout.readline())
+        time.sleep(1)
 
 
 # gracefully catch and handle docker stop
@@ -86,13 +76,12 @@ def main():
     # validate credentials exist
     if ("company" in os.environ and
         "username" in os.environ and
-        "password" in os.environ):
+       "password" in os.environ):
             # install and/or start collector
             params = getParams()
             startup(params)
 
-            # tail log file.
-            # No need to check success. Program will exit if above command fails
+            # tail log file if successful
             tail(logfile)
 
     else:
