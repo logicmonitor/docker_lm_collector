@@ -31,6 +31,6 @@ docker run --name lm_collector -d \
     -e company=<your-company> \
     -e username=<your-username> \
     -e password=<your-password> \
-    - cleanup=true \
+    -e cleanup=true \
 logicmonitor/lm_collector:latest
 ```
