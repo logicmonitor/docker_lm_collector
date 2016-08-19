@@ -17,7 +17,6 @@ def getParams():
     params["company"] = os.environ["company"]
     params["user"] = os.environ["username"]
     params["password"] = os.environ["password"]
-    params["collector_id"] = ""
     if "collector_id" in os.environ:
         params["collector_id"] = os.environ["collector_id"]
     params["description"] = ""
@@ -81,9 +80,11 @@ def signal_term_handler(signal, frame):
 
 def main():
     # validate credentials exist
-    if ("company" in os.environ and
+    if (
+        "company" in os.environ and
         "username" in os.environ and
-       "password" in os.environ):
+        "password" in os.environ
+    ):
             # install and/or start collector
             params = getParams()
             startup(params)
