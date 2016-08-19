@@ -22,6 +22,10 @@ username - your LogicMonitor username
 
 password - your LogicMonitor password
 
+collector_id - OPTIONAL. The id of an existing LogicMonitor collector. The
+container will start up as the specified collector. Cannot be used with
+the cleanup option.
+
 cleanup - if this is non-null, the collector will remove itself from the portal
 when the container is stopped.
 
@@ -31,6 +35,7 @@ docker run --name lm_collector -d \
     -e company=<your-company> \
     -e username=<your-username> \
     -e password=<your-password> \
+    -e collector_id=<existing collector id> \
     -e cleanup=true \
 logicmonitor/lm_collector:latest
 ```
