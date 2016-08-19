@@ -17,6 +17,8 @@ def getParams():
     params["company"] = os.environ["company"]
     params["user"] = os.environ["username"]
     params["password"] = os.environ["password"]
+    if "collector_id" in os.environ:
+        params["collector_id"] = os.environ["collector_id"]
     params["description"] = ""
     if "description" in os.environ:
         params["description"] = os.environ["description"]
@@ -59,14 +61,18 @@ def tail(filename):
 # gracefully catch and handle docker stop
 def signal_term_handler(signal, frame):
     logging.debug("SIGTERM caught.")
-    if ("cleanup" in os.environ and
-       os.environ["cleanup"] is not "False" and
-       os.environ["cleanup"] is not "false"):
-            logging.debug("Uninstalling collector.")
-            # remove the collector
-            params = getParams()
-            collector = Collector(params)
-            sys.exit(collector.remove())
+    # DON'T DELETE EXISTING COLLECTOR IF COLLECTOR_ID SPECIFIED
+    if (
+        "collector_id" not in os.environ and
+        "cleanup" in os.environ and
+        os.environ["cleanup"] is not "False" and
+        os.environ["cleanup"] is not "false"
+    ):
+        logging.debug("Uninstalling collector.")
+        # remove the collector
+        params = getParams()
+        collector = Collector(params)
+        sys.exit(collector.remove())
     else:
         logging.debug("Exiting.")
         sys.exit(0)
@@ -74,9 +80,11 @@ def signal_term_handler(signal, frame):
 
 def main():
     # validate credentials exist
-    if ("company" in os.environ and
+    if (
+        "company" in os.environ and
         "username" in os.environ and
-       "password" in os.environ):
+        "password" in os.environ
+    ):
             # install and/or start collector
             params = getParams()
             startup(params)
