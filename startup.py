@@ -1,4 +1,5 @@
 from logicmonitor_core.Collector import Collector
+import re
 import logging
 import os
 import select
@@ -37,6 +38,8 @@ def startup(params):
     # detect whether collector already exists
     if os.path.isdir('/usr/local/logicmonitor/agent'):
         logging.debug('Collector already installed.')
+        logging.debug('Cleaning any existing lock files.')
+        cleanup()
         logging.debug('Starting collector.')
         # start collector
         collector.start()
@@ -44,6 +47,19 @@ def startup(params):
         logging.debug('Installing collector.')
         # create collector
         collector.create()
+
+
+# cleanup any leftover lock files
+def cleanup():
+    lockdir = '/usr/local/logicmonitor/agent/bin'
+    if os.path.isdir(lockdir):
+        for f in os.listdir(lockdir):
+            if re.search('.*\.lck', f):
+                logging.debug('Removing ' + f + '.')
+                os.remove(os.path.join(lockdir, f))
+            elif re.search('.*\.pid', f):
+                logging.debug('Removing ' + f + '.')
+                os.remove(os.path.join(lockdir, f))
 
 
 # live tail a file
