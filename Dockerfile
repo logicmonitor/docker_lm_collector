@@ -8,5 +8,6 @@ RUN apt-get update && apt-get install -y ntp
 
 COPY ./startup.py /startup.py
 COPY ./startup.sh /startup.sh
+COPY ./shutdown.py /shutdown.py
 
 ENTRYPOINT ["/startup.sh"]
