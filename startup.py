@@ -2,12 +2,9 @@ from logicmonitor_core.Collector import Collector
 import re
 import logging
 import os
-import select
 import signal
 import socket
-import subprocess
 import sys
-import time
 
 install_dir = '/usr/local/logicmonitor/agent'
 logfile = install_dir + '/logs/wrapper.log'
@@ -63,19 +60,6 @@ def cleanup():
                 os.remove(os.path.join(lockdir, f))
 
 
-# live tail a file
-def tail(filename):
-    f = subprocess.Popen(['tail', '-F', filename],
-                         stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    p = select.poll()
-    p.register(f.stdout)
-
-    while True:
-        if p.poll(1):
-            sys.stdout.write(f.stdout.readline())
-        time.sleep(1)
-
-
 # gracefully catch and handle docker stop
 def signal_term_handler(signal, frame):
     logging.debug('SIGTERM caught.')
@@ -106,9 +90,6 @@ def main():
             # install and/or start collector
             params = getParams()
             startup(params)
-
-            # tail log file if successful
-            tail(logfile)
 
     else:
         print('Please specify company, username, and password')
