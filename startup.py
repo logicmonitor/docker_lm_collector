@@ -61,23 +61,9 @@ def cleanup():
 
 
 # gracefully catch and handle docker stop
-def signal_term_handler(signal, frame):
-    logging.debug('SIGTERM caught.')
-    # DON'T DELETE EXISTING COLLECTOR IF COLLECTOR_ID SPECIFIED
-    if (
-        'collector_id' not in os.environ and
-        'cleanup' in os.environ and
-        os.environ['cleanup'] is not 'False' and
-        os.environ['cleanup'] is not 'false'
-    ):
-        logging.debug('Uninstalling collector.')
-        # remove the collector
-        params = getParams()
-        collector = Collector(params)
-        sys.exit(collector.remove())
-    else:
-        logging.debug('Exiting.')
-        sys.exit(0)
+def signal_handler(signal, frame):
+    logging.debug('Caught signal ' + str(signal) + '. Exiting.')
+    sys.exit(0)
 
 
 def main():
@@ -96,5 +82,7 @@ def main():
         sys.exit(1)
 
 # TERM handler
-signal.signal(signal.SIGTERM, signal_term_handler)
+signal.signal(signal.SIGTERM, signal_handler)
+signal.signal(signal.SIGINT, signal_handler)
+
 main()
