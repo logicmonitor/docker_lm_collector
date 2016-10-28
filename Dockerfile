@@ -7,5 +7,6 @@ RUN mkdir /usr/local/logicmonitor
 RUN apt-get update && apt-get install -y ntp
 
 COPY ./startup.py /startup.py
+COPY ./startup.sh /startup.sh
 
-ENTRYPOINT ["python", "/startup.py"]
+ENTRYPOINT ["/startup.sh"]
