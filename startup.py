@@ -9,7 +9,9 @@ import subprocess
 import sys
 import time
 
-logfile = '/usr/local/logicmonitor/agent/logs/wrapper.log'
+install_dir = '/usr/local/logicmonitor/agent'
+logfile = install_dir + '/logs/wrapper.log'
+lockdir = install_dir + '/bin'
 
 
 def getParams():
@@ -36,7 +38,7 @@ def startup(params):
     collector = Collector(params)
 
     # detect whether collector already exists
-    if os.path.isdir('/usr/local/logicmonitor/agent'):
+    if os.path.isdir(install_dir):
         logging.debug('Collector already installed.')
         logging.debug('Cleaning any existing lock files.')
         cleanup()
@@ -51,7 +53,6 @@ def startup(params):
 
 # cleanup any leftover lock files
 def cleanup():
-    lockdir = '/usr/local/logicmonitor/agent/bin'
     if os.path.isdir(lockdir):
         for f in os.listdir(lockdir):
             if re.search('.*\.lck', f):
