@@ -37,7 +37,7 @@ def main():
         # remove the collector
         params = getParams()
         collector = Collector(params)
-        collector.remove()
+        collector._unregister()
 
     logging.debug('Shutdown complete.')
     sys.exit(0)
