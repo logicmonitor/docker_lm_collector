@@ -2,14 +2,14 @@ from logicmonitor_core.Collector import Collector
 import re
 import logging
 import os
-import select
 import signal
 import socket
-import subprocess
 import sys
-import time
 
-logfile = '/usr/local/logicmonitor/agent/logs/wrapper.log'
+install_dir = '/usr/local/logicmonitor/agent'
+logfile = install_dir + '/logs/wrapper.log'
+lockdir = install_dir + '/bin'
+rundir = '/run'
 
 
 def getParams():
@@ -36,7 +36,7 @@ def startup(params):
     collector = Collector(params)
 
     # detect whether collector already exists
-    if os.path.isdir('/usr/local/logicmonitor/agent'):
+    if os.path.isdir(install_dir):
         logging.debug('Collector already installed.')
         logging.debug('Cleaning any existing lock files.')
         cleanup()
@@ -51,7 +51,6 @@ def startup(params):
 
 # cleanup any leftover lock files
 def cleanup():
-    lockdir = '/usr/local/logicmonitor/agent/bin'
     if os.path.isdir(lockdir):
         for f in os.listdir(lockdir):
             if re.search('.*\.lck', f):
@@ -60,39 +59,20 @@ def cleanup():
             elif re.search('.*\.pid', f):
                 logging.debug('Removing ' + f + '.')
                 os.remove(os.path.join(lockdir, f))
-
-
-# live tail a file
-def tail(filename):
-    f = subprocess.Popen(['tail', '-F', filename],
-                         stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    p = select.poll()
-    p.register(f.stdout)
-
-    while True:
-        if p.poll(1):
-            sys.stdout.write(f.stdout.readline())
-        time.sleep(1)
+    if os.path.isdir(rundir):
+        for f in os.listdir(rundir):
+            if re.search('.*\.lck', f):
+                logging.debug('Removing ' + f + '.')
+                os.remove(os.path.join(rundir, f))
+            elif re.search('.*\.pid', f):
+                logging.debug('Removing ' + f + '.')
+                os.remove(os.path.join(rundir, f))
 
 
 # gracefully catch and handle docker stop
-def signal_term_handler(signal, frame):
-    logging.debug('SIGTERM caught.')
-    # DON'T DELETE EXISTING COLLECTOR IF COLLECTOR_ID SPECIFIED
-    if (
-        'collector_id' not in os.environ and
-        'cleanup' in os.environ and
-        os.environ['cleanup'] is not 'False' and
-        os.environ['cleanup'] is not 'false'
-    ):
-        logging.debug('Uninstalling collector.')
-        # remove the collector
-        params = getParams()
-        collector = Collector(params)
-        sys.exit(collector.remove())
-    else:
-        logging.debug('Exiting.')
-        sys.exit(0)
+def signal_handler(signal, frame):
+    logging.debug('Caught signal ' + str(signal) + '. Exiting.')
+    sys.exit(0)
 
 
 def main():
@@ -106,13 +86,12 @@ def main():
             params = getParams()
             startup(params)
 
-            # tail log file if successful
-            tail(logfile)
-
     else:
         print('Please specify company, username, and password')
         sys.exit(1)
 
 # TERM handler
-signal.signal(signal.SIGTERM, signal_term_handler)
+signal.signal(signal.SIGTERM, signal_handler)
+signal.signal(signal.SIGINT, signal_handler)
+
 main()
