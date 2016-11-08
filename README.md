@@ -3,6 +3,8 @@
 ## Overview
 Docker image capable of installing and running a LogicMonitor collector
 
+#### Note that this is beta functionality, and as such LogicMonitor support will not be able to assist in any issues that arise.  Instead, please create issues directly in this GitHub repository.
+
 ## Website
 http://www.logicmonitor.com
 
