@@ -9,6 +9,7 @@ import sys
 install_dir = '/usr/local/logicmonitor/agent'
 logfile = install_dir + '/logs/wrapper.log'
 lockdir = install_dir + '/bin'
+rundir = '/run'
 
 
 def getParams():
@@ -58,6 +59,14 @@ def cleanup():
             elif re.search('.*\.pid', f):
                 logging.debug('Removing ' + f + '.')
                 os.remove(os.path.join(lockdir, f))
+    if os.path.isdir(rundir):
+        for f in os.listdir(rundir):
+            if re.search('.*\.lck', f):
+                logging.debug('Removing ' + f + '.')
+                os.remove(os.path.join(rundir, f))
+            elif re.search('.*\.pid', f):
+                logging.debug('Removing ' + f + '.')
+                os.remove(os.path.join(rundir, f))
 
 
 # gracefully catch and handle docker stop
