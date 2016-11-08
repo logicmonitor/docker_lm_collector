@@ -4,6 +4,7 @@ signal_handler() {
   echo $pid
   if [ ! -z $pid ]; then
     kill -s 15 $pid
+    /usr/local/logicmonitor/agent/bin/sbshutdown;
     python /shutdown.py
     exit 0
   fi
