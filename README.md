@@ -28,6 +28,9 @@ collector_id - OPTIONAL. The id of an existing LogicMonitor collector. The
 container will start up as the specified collector. Cannot be used with
 the cleanup option.
 
+description - OPTIONAL. The collector description. Cannot be used with
+collector_id.
+
 cleanup - if this is non-null, the collector will remove itself from the portal
 when the container is stopped.
 
