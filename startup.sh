@@ -18,6 +18,10 @@ trap 'kill ${!}; signal_handler' SIGINT
 python /startup.py &
 pid="$!"
 
+if [ -d "/usr/local/logicmonitor/agent/lib" ]; then
+  cp /tmp/*.jar /usr/local/logicmonitor/agent/lib/amazonlibs/
+fi
+
 # wait forever
 while true
 do
