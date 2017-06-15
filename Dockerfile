@@ -7,7 +7,7 @@ RUN mkdir /usr/local/logicmonitor
 RUN apt-get update && apt-get install -y ntp
 
 # download kubernetes jar and place into temp directory to be moved after collector installation
-ADD https://static-prod.logicmonitor.com/logicmonitor-k8s/kubernetes.jar /tmp/kubernetes.jar
+ADD https://static-prod.logicmonitor.com/logicmonitor-k8s/kubernetes.jar /tmp/
 
 COPY ./startup.py /startup.py
 COPY ./startup.sh /startup.sh
