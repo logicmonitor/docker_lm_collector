@@ -1,11 +1,10 @@
 from logicmonitor_core.Collector import Collector
-import re
 import logging
 import os
+import re
 import signal
 import socket
 import sys
-import glob
 
 install_dir = '/usr/local/logicmonitor/agent'
 logfile = install_dir + '/logs/wrapper.log'
@@ -37,7 +36,7 @@ def startup(params):
     collector = Collector(params)
 
     # detect whether collector already exists
-    if glob.glob('/usr/local/logicmonitor/logicmonitorsetup\d+_\d+.bin'):
+    if os.path.isdir(install_dir):
         logging.debug('Collector already installed.')
         logging.debug('Cleaning any existing lock files.')
         cleanup()
@@ -90,6 +89,7 @@ def main():
     else:
         print('Please specify company, username, and password')
         sys.exit(1)
+
 
 # TERM handler
 signal.signal(signal.SIGTERM, signal_handler)
