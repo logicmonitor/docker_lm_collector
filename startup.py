@@ -90,6 +90,7 @@ def main():
         print('Please specify company, username, and password')
         sys.exit(1)
 
+
 # TERM handler
 signal.signal(signal.SIGTERM, signal_handler)
 signal.signal(signal.SIGINT, signal_handler)
