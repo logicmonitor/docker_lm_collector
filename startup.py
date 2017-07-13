@@ -1,7 +1,7 @@
 from logicmonitor_core.Collector import Collector
-import re
 import logging
 import os
+import re
 import signal
 import socket
 import sys
