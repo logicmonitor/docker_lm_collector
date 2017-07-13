@@ -22,7 +22,6 @@ pid="$!"
 while true
 do
   if [ -e "/usr/local/logicmonitor/agent/logs/wrapper.log" ]; then
-    mv /tmp/*.jar /usr/local/logicmonitor/agent/lib/amazonlibs/
     tail -f /usr/local/logicmonitor/agent/logs/wrapper.log & wait
   fi
 done
