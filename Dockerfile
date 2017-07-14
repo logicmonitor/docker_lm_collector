@@ -1,4 +1,4 @@
-FROM python:2.7
+FROM python:2.7-slim
 
 RUN pip install logicmonitor_core
 RUN mkdir /usr/local/logicmonitor

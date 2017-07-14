@@ -1,7 +1,7 @@
 from logicmonitor_core.Collector import Collector
-import re
 import logging
 import os
+import re
 import signal
 import socket
 import sys
@@ -89,6 +89,7 @@ def main():
     else:
         print('Please specify company, username, and password')
         sys.exit(1)
+
 
 # TERM handler
 signal.signal(signal.SIGTERM, signal_handler)
