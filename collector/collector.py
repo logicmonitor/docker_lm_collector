@@ -72,7 +72,7 @@ def create_collector(client, collector):
 
 
 def delete_collector(client, collector):
-    logging.debug('deleting collector group ' + str(collector.id))
+    logging.debug('deleting collector ' + str(collector.id))
     resp = None
     try:
         resp = client.delete_collector_by_id(str(collector.id))

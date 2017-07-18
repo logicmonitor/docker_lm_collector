@@ -9,10 +9,11 @@ import util
 
 def main():
     logging.basicConfig(level=logging.DEBUG)
+    logging.debug('Shutting down')
     params = param.parse_params()
     # DON'T DELETE EXISTING COLLECTOR IF COLLECTOR_ID SPECIFIED
     if (
-        not os.isfile(config.COLLECTOR_LOCK) and
+        not os.path.isfile(config.COLLECTOR_LOCK) and
         'cleanup' in params and
         params['cleanup']
     ):
