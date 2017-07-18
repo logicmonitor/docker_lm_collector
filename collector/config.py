@@ -6,8 +6,10 @@ INSTALL_PATH = '/usr/local/logicmonitor/'
 DEFAULT_OS = 'Linux'
 TEMP_PATH = '/tmp/'
 
+LOCK_PATH = INSTALL_PATH + AGENT_DIRECTORY + BIN_PATH
 LOG_FILE = INSTALL_PATH + '/logs/wrapper.log'
-COLLECTOR_LOCK = INSTALL_PATH + 'collector.found'
+COLLECTOR_FOUND = INSTALL_PATH + 'collector.found'
+FIRST_RUN = INSTALL_PATH + 'first.run'
 
 PARAM_OPTS = {
     'account': dict(required=True, default=None),

@@ -65,14 +65,13 @@ def remove_path(path):
 
 # cleanup any leftover lock files
 def cleanup():
-    if os.path.isdir(config.BIN_PATH):
-        for f in os.listdir(config.BIN_PATH):
+    logging.debug('Cleaning any existing lock files.')
+    if os.path.isdir(config.LOCK_PATH):
+        for f in os.listdir(config.LOCK_PATH):
             if re.search('.*\.lck', f):
-                logging.debug('Removing ' + f + '.')
-                remove_path(os.path.join(config.BIN_PATH, f))
+                remove_path(os.path.join(config.LOCK_PATH, f))
             elif re.search('.*\.pid', f):
-                logging.debug('Removing ' + f + '.')
-                remove_path(os.path.join(config.BIN_PATH, f))
+                remove_path(os.path.join(config.LOCK_PATH, f))
 
 
 def get_client(params):

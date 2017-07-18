@@ -13,7 +13,7 @@ def main():
     params = param.parse_params()
     # DON'T DELETE EXISTING COLLECTOR IF COLLECTOR_ID SPECIFIED
     if (
-        not os.path.isfile(config.COLLECTOR_LOCK) and
+        not os.path.isfile(config.COLLECTOR_FOUND) and
         'cleanup' in params and
         params['cleanup']
     ):
