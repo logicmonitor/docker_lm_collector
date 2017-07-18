@@ -7,33 +7,43 @@ import sys
 import util
 
 
-def startup(client, c, params):
-    # detect whether collector already exists
+def startup(client, params):
+    c = None
+
+    # detect if the collector already exists in the portal
+    f = collector.find_collector(client, params)
+    if not f:
+        logging.debug('Collector not found')
+        c = collector.collector(client, params)
+        c = collector.create_collector(client, c)
+    else:
+        logging.debug('Collector found')
+        c = f
+
+        # we want to make a note on the fs that we found an existing collector
+        # so that we don't remove it during a future cleanup, but we should
+        # only make this note if this is the first time the container is run
+        # (otherwise, every subsequent should detect the existing collector
+        # that we're going to create below. Not the behavior we want)
+        if not os.path.isfile(config.FIRST_RUN):
+            util.touch(config.COLLECTOR_FOUND)
+
+    # let subsequent runs know that this isn't the first container run
+    util.touch(config.FIRST_RUN)
+
+    # detect if collector is already installed
     if os.path.isdir(config.INSTALL_PATH + config.AGENT_DIRECTORY):
         logging.debug('Collector already installed.')
-        logging.debug('Cleaning any existing lock files.')
         util.cleanup()
         return
-    else:
-        # see if the collector already exists
-        f = collector.find_collector(client, params)
-        if not f:
-            # if not using an existing collector, create one
-            c = collector.create_collector(client, c)
-        else:
-            c = f
-            # don't clean up found collectors
-            util.touch(config.COLLECTOR_LOCK)
-        collector.install_collector(client, c, params)
-        return
+    collector.install_collector(client, c, params)
 
 
 def main():
     logging.basicConfig(level=logging.DEBUG)
     params = param.parse_params()
     client = util.get_client(params)
-    c = collector.collector(client, params)
-    startup(client, c, params)
+    startup(client, params)
     sys.exit(0)
 
 
