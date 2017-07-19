@@ -91,7 +91,7 @@ small
 
 ### collector_version:
 ##### description:
-The version of the collector to install
+The version of the collector to install (without periods or other characters)
 https://www.logicmonitor.com/support/settings/collectors/collector-versions/
 ##### required:
 false
@@ -152,7 +152,7 @@ False
 ##### type:
 bool
 
-### us_ea:
+### use_ea:
 ##### description:
 If true, the latest EA Collector version will be used
 ##### required:
