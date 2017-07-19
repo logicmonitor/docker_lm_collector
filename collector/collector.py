@@ -22,8 +22,8 @@ def collector(client, params):
         kwargs['description'] = params['description']
     else:
         kwargs['description'] = socket.getfqdn()
-    if 'id' in params and params['id']:
-        kwargs['id'] = params['id']
+    if 'collector_id' in params and params['collector_id']:
+        kwargs['collector_id'] = params['collector_id']
     if 'resend_interval' in params and params['resend_interval']:
         kwargs['resend_ival'] = params['resend_interval']
     if 'suppress_alert_clear' in params and params['suppress_alert_clear']:
@@ -94,8 +94,8 @@ def delete_collector(client, collector):
 
 
 def find_collector(client, params):
-    if 'id' in params and params['id']:
-        return find_collector_by_id(client, params['id'])
+    if 'collector_id' in params and params['collector_id']:
+        return find_collector_by_id(client, params['collector_id'])
     else:
         return find_collector_by_description(client, params)
 

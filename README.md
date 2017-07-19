@@ -124,7 +124,7 @@ false
 ##### default:
 1
 
-### id:
+### collector_id:
 ##### description:
 The Id of an existing Collector provision
 
