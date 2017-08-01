@@ -1,4 +1,4 @@
-# lm_collector
+# LogicMonitor Collector
 
 ## Overview
 Docker image capable of installing and running a LogicMonitor collector
@@ -9,38 +9,184 @@ Docker image capable of installing and running a LogicMonitor collector
 http://www.logicmonitor.com
 
 ## Docker repository
-https://hub.docker.com/r/logicmonitor/lm_collector/
+https://hub.docker.com/r/logicmonitor/collector/
 
 ## Requirements
-You must have a LogicMonitor account
+- You must have a LogicMonitor account
+- The specified token Access Id and Access Key must have sufficient permission to perform the requested actions
 
-## Usage
-This container will utilize environment variables to authenticate to your
-LogicMonitor portal.
+## Parameters
+All listed parameters are specified as container environment variables at
+runtime.
 
-company - your company's name
+### account:
+##### description:
+LogicMonitor account name
+##### required:
+true
+##### default:
+null
 
-username - your LogicMonitor username
+### access_id:
+##### description:
+LogicMonitor API Token Access ID
+##### required:
+true
+##### default:
+null
 
-password - your LogicMonitor password
+### access_key:
+##### description:
+LogicMonitor API Token Access Key
+##### required:
+true
+##### default:
+null
 
-collector_id - OPTIONAL. The id of an existing LogicMonitor collector. The
-container will start up as the specified collector. Cannot be used with
-the cleanup option.
+### backup_collector_id:
+##### description:
+The Id of the failover Collector configured for this Collector
+##### required:
+false
+##### default:
+null
 
-description - OPTIONAL. The collector description. Cannot be used with
-collector_id.
+### cleanup:
+##### description:
+Whether or not to remove itself from the portal when the container is stopped
+##### required:
+false
+##### default:
+False
+##### type:
+bool
 
-cleanup - if this is non-null, the collector will remove itself from the portal
-when the container is stopped.
+### collector_group:
+##### description:
+The Id of the group the Collector is in
 
-## Example
+If a Collector with the same description already exists, use that Collector Id
+##### required:
+false
+##### default:
+/
+
+### collector_size:
+##### description:
+The size of the Collector to install:
+- nano requires < 2GB memory
+- small requires 2GB memory
+- medium requires 4GB memory
+- large requires 8GB memory
+
+##### required:
+false
+##### default:
+small
+##### choices:
+- nano
+- small
+- medium
+- large
+
+### collector_version:
+##### description:
+The version of the collector to install (without periods or other characters)
+https://www.logicmonitor.com/support/settings/collectors/collector-versions/
+##### required:
+false
+##### default:
+null
+
+### description:
+##### description:
+The Collector's description
+##### required:
+false
+##### default:
+null
+
+### enable_fail_back:
+##### description:
+Whether or not automatic failback is enabled for the Collector
+##### required:
+false
+##### default:
+False
+##### type:
+bool
+
+### escalating_chain_id:
+##### description:
+The Id of the escalation chain associated with this Collector
+##### required:
+false
+##### default:
+1
+
+### collector_id:
+##### description:
+The Id of an existing Collector provision
+
+The specified Collector Id must already exist in order to use this option
+##### required:
+false
+##### default:
+null
+
+### resend_interval:
+##### description:
+The interval, in minutes, after which alert notifications for the Collector will be resent
+##### required:
+false
+##### default:
+15
+
+### suppress_alert_clear:
+##### description:
+Whether alert clear notifications are suppressed for the Collector
+##### required:
+false
+##### default:
+False
+##### type:
+bool
+
+### use_ea:
+##### description:
+If true, the latest EA Collector version will be used
+##### required:
+false
+##### default:
+False
+##### type:
+bool
+
+## Examples
+### Creating a new collector
 ```
-docker run --name lm_collector -d \
-    -e company=<your-company> \
-    -e username=<your-username> \
-    -e password=<your-password> \
-    -e collector_id=<existing collector id> \
-    -e cleanup=true \
-logicmonitor/lm_collector:latest
+docker run --name lm-collector -d \
+  -e account=<your portal name> \
+  -e access_id=<your api access id> \
+  -e access_key=<your api access key> \
+  -e backup_collector_id=15 \
+  -e collector_group=DockerCollectors \
+  -e collector_size=large \
+  -e description='My Dockerized Collector' \
+  -e enable_fail_back=yes \
+  -e escalation_chain_id=1 \
+  -e resend_interval=60 \
+  -e suppress_alert_clear=no \
+  -e cleanup=true \
+logicmonitor/collector:latest
+```
+### Installing an existing collector
+```
+docker run --name lm-collector -d \
+  -e account=<your portal name> \
+  -e access_id=<your api access id> \
+  -e access_key=<your api access key> \
+  -e id=16 \
+  -e collector_size=large \
+logicmonitor/collector:latest
 ```
