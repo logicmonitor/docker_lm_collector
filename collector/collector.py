@@ -227,14 +227,17 @@ def install_collector(client, collector, params):
         # if we failed but there's no stderr, set err msg to stdout
         if err == '':
             err = result['stdout']
-        else:
-            logging.debug(result['stdout'])
 
         logging.debug('Collector install failed')
+        logging.debug('stdout: ' + str(result['stdout']))
+        logging.debug('stderr: ' + str(result['stderr']))
         logging.debug('Cleaning up collector install directory')
         util.remove_path(config.INSTALL_PATH + config.AGENT_DIRECTORY)
-        util.fail(err)
+        fail = True
 
     # be nice and clean up
     logging.debug('Cleaning up downloaded installer')
     util.remove_path(installer)
+
+    if fail:
+        util.fail(err)
