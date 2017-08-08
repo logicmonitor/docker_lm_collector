@@ -194,9 +194,8 @@ def download_installer(client, collector, params):
 
     resp = None
     kwargs = {
-        'collector_size': params['collector_size']
-        # TODO: Restore when API returns this in the collector resource
-        # , 'use_ea': bool(params['use_ea'])
+        'collector_size': params['collector_size'],
+        'use_ea': params['use_ea']
     }
     if 'collector_version' in params and params['collector_version']:
         kwargs['collector_version'] = params['collector_version']
