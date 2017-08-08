@@ -194,9 +194,8 @@ def download_installer(client, collector, params):
 
     resp = None
     kwargs = {
-        'collector_size': params['collector_size']
-        # TODO: Restore when API returns this in the collector resource
-        # , 'use_ea': bool(params['use_ea'])
+        'collector_size': params['collector_size'],
+        'use_ea': params['use_ea']
     }
     if 'collector_version' in params and params['collector_version']:
         kwargs['collector_version'] = params['collector_version']
@@ -224,11 +223,16 @@ def install_collector(client, collector, params):
     result = util.shell([str(installer), ' -y'])
 
     if result['code'] != 0 or result['stderr'] != '':
-        logging.debug(result['stdout'])
         err = result['stderr']
         # if we failed but there's no stderr, set err msg to stdout
         if err == '':
             err = result['stdout']
+
+        logging.debug('Collector install failed')
+        logging.debug('stdout: ' + str(result['stdout']))
+        logging.debug('stderr: ' + str(result['stderr']))
+        logging.debug('Cleaning up collector install directory')
+        util.remove_path(config.INSTALL_PATH + config.AGENT_DIRECTORY)
         fail = True
 
     # be nice and clean up
@@ -236,7 +240,4 @@ def install_collector(client, collector, params):
     util.remove_path(installer)
 
     if fail:
-        logging.debug('Collector install failed')
-        logging.debug('Cleaning up collector install directory')
-        util.remove_path(config.INSTALL_PATH + config.AGENT_DIRECTORY)
         util.fail(err)
