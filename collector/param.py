@@ -32,7 +32,7 @@ def parse_param(param, meta):
             return None, False, 'The parameter ' + param + ' is required'
 
         # use the default value if param not set
-        if meta['default']:
+        if 'default' in meta:
             value = meta['default']
 
     # validate parameters values for type and choice options
