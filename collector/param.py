@@ -74,14 +74,15 @@ def parse_bool(value, param):
     success = True
     err = None
 
-    true = ['true', '1', 'True']
-    false = ['false', '0', 'False']
+    true = ['true', '1', 'True', 'yes', 'Yes']
+    false = ['false', '0', 'False', 'no', 'No']
     bools = [True, False]
 
     if value not in true and value not in false and value not in bools:
         success = False
         accepted_values = ' or '.join(true + false)
         err = 'Value for ' + param + ' should be ' + accepted_values
+        print(value)
 
     if value in true:
         value = True
