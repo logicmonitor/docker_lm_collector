@@ -82,7 +82,7 @@ def parse_bool(value, param):
 
     if bool(value):
         value = True
-    elif not bool(value):
+    else:
         value = False
 
     return value, success, err
