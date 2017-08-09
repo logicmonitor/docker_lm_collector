@@ -32,7 +32,7 @@ def parse_param(param, meta):
             return None, False, 'The parameter ' + param + ' is required'
 
         # use the default value if param not set
-        if meta['default']:
+        if 'default' in meta:
             value = meta['default']
 
     # validate parameters values for type and choice options
@@ -74,15 +74,19 @@ def parse_bool(value, param):
     success = True
     err = None
 
-    try:
-        value = bool(value)
-    except:
-        success = False
-        err = 'Value for ' + param + ' should be "True" or "False"'
+    true = ['true', '1', 'True', 'yes', 'Yes']
+    false = ['false', '0', 'False', 'no', 'No']
+    bools = [True, False]
 
-    if bool(value):
+    if value not in true and value not in false and value not in bools:
+        success = False
+        accepted_values = ' or '.join(true + false)
+        err = 'Value for ' + param + ' should be ' + accepted_values
+        print(value)
+
+    if value in true:
         value = True
-    elif not bool(value):
+    else:
         value = False
 
     return value, success, err
