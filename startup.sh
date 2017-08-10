@@ -38,8 +38,17 @@ watch_agent() {
         sleep 1; \
       done"
 
-    # get the current PID of the collector agent
-    AGENT_PID=$(cat $AGENT_PID_PATH)
+    # make sure the PID file exists
+    if [ -e $AGENT_PID_PATH ]; then
+      # get the current PID of the collector agent
+      AGENT_PID=$(cat $AGENT_PID_PATH)
+    fi
+
+    # make sure we grabbed a PID
+    if [ -z "$AGENT_PID" ]; then
+      sleep 10
+      continue
+    fi
 
     # check if the agent is running, and if not, make a note
     FAIL=0
