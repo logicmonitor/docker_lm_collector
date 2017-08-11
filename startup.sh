@@ -30,6 +30,8 @@ watch_pid() {
 watch_agent() {
   # $1 = pid of startup script
 
+  # check if the agent is running, and if not, make a note
+  FAIL=0
   while true
   do
     timeout 10 bash -c -- "\
@@ -44,14 +46,13 @@ watch_agent() {
       AGENT_PID=$(cat $AGENT_PID_PATH)
     fi
 
-    # make sure we grabbed a PID
+    # if we failed to grab a PID, increment failures and try again
     if [ -z "$AGENT_PID" ]; then
+      FAIL=$(($FAIL+1))
       sleep 10
       continue
     fi
 
-    # check if the agent is running, and if not, make a note
-    FAIL=0
     if ! $(ps -p $AGENT_PID > /dev/null); then
       FAIL=$(($FAIL+1))
     else
