@@ -12,7 +12,7 @@ def collector(client, params):
     obj = None
     kwargs = {
         'enable_fail_back': params['enable_fail_back'],
-        'escalating_chain_id': params['escalation_chain_id'],
+        'escalating_chain_id': params['escalating_chain_id'],
         'need_auto_create_collector_device': False
     }
 
