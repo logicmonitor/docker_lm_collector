@@ -8,10 +8,10 @@ RUN apt-get update \
 && apt-get -y clean \
 && rm -rf /var/lib/apt/lists/*
 
-RUN pip install logicmonitor_sdk
+RUN pip install logicmonitor_sdk==0.0.1.4
 RUN mkdir /usr/local/logicmonitor
 
-ADD collector /collector
+COPY collector /collector
 COPY ./startup.sh /startup.sh
 
 ENTRYPOINT ["/startup.sh"]
