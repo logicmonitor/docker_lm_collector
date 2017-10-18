@@ -3,6 +3,7 @@ FROM python:2.7-slim
 # NTP is needed for some collector operations
 RUN apt-get update \
 && apt-get install --no-install-recommends -y \
+  inetutils-traceroute \
   ntp \
   perl \
 && apt-get -y clean \
