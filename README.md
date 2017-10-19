@@ -174,7 +174,7 @@ docker run --name lm-collector -d \
   -e collector_size=large \
   -e description='My Dockerized Collector' \
   -e enable_fail_back=yes \
-  -e escalation_chain_id=1 \
+  -e escalating_chain_id=1 \
   -e resend_interval=60 \
   -e suppress_alert_clear=no \
   -e cleanup=true \

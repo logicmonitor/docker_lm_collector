@@ -31,7 +31,7 @@ PARAM_OPTS = {
         default=False,
         type='bool'
     ),
-    'escalation_chain_id': dict(required=False, default=1, type='int'),
+    'escalating_chain_id': dict(required=False, default=1, type='int'),
     'collector_id': dict(required=False, default=None, type='int'),
     'resend_interval': dict(required=False, default=15, type='int'),
     'suppress_alert_clear': dict(
