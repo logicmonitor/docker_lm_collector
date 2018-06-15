@@ -5,6 +5,7 @@ RUN apt-get update \
 && apt-get install --no-install-recommends -y \
   ntp \
   perl \
+  procps \
 && apt-get -y clean \
 && rm -rf /var/lib/apt/lists/*
 
@@ -14,4 +15,4 @@ RUN mkdir /usr/local/logicmonitor
 ADD collector /collector
 COPY ./startup.sh /startup.sh
 
-ENTRYPOINT ["/startup.sh"]
+CMD ["/startup.sh"]
