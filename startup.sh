@@ -12,16 +12,48 @@ UNCLEAN_SHUTDOWN_PATH=$INSTALL_PATH/unclean_shutdown.lck
 trap 'signal_handler' SIGTERM
 trap 'signal_handler' SIGINT
 
+get_agent_pid() {
+  # make sure the PID file exists
+  if [ -e $AGENT_PID_PATH ]; then
+    # get the current PID of the collector agent
+    echo "$(<$AGENT_PID_PATH)"
+  fi
+}
+
+get_watchdog_pid() {
+  # make sure the PID file exists
+  if [ -e $WATCHDOG_PID_PATH ]; then
+    # get the current PID of the collector agent
+    echo "$(<$WATCHDOG_PID_PATH)"
+  fi
+}
+
+
 watch_pid() {
-  # $1 = collector pid
-  # $2 = pid of startup script
+  PID=$1
+  STARTUP_SCRIPT_PID=$2
+  PID_FAIL=0
   while true
   do
-    if ! $(ps -p $1 > /dev/null); then
-      # we want to skip cleanup scripts since the collector failed unexpectedly
-      echo -e "Watchdog crashed\nExiting"
-      touch $UNCLEAN_SHUTDOWN_PATH
-      kill -INT $2
+    # echo -e "Checking the health of PID $PID"
+    if ! $(ps $PID > /dev/null); then
+    # if the PID we're watching dies, wait 6 fails to see if the collector
+    # starts up again with a new PID
+      NEW_PID=$(get_agent_pid)
+      if [[ ! -z $NEW_PID && $NEW_PID != $PID ]]; then
+        echo -e "Found new PID $NEW_PID"
+        PID=$NEW_PID
+      else
+        PID_FAIL=$(($PID_FAIL+1))
+        if [ "$PID_FAIL" -ge 6 ]; then
+          # we want to skip cleanup scripts since the collector failed unexpectedly
+          echo -e "Watchdog crashed\nExiting"
+          touch $UNCLEAN_SHUTDOWN_PATH
+          kill -INT $STARTUP_SCRIPT_PID
+        fi
+      fi
+    else
+      PID_FAIL=0
     fi
     sleep 10
   done
@@ -40,11 +72,7 @@ watch_agent() {
         sleep 1; \
       done"
 
-    # make sure the PID file exists
-    if [ -e $AGENT_PID_PATH ]; then
-      # get the current PID of the collector agent
-      AGENT_PID=$(cat $AGENT_PID_PATH)
-    fi
+    AGENT_PID=$(get_agent_pid)
 
     # if we failed to grab a PID, increment failures and try again
     if [ -z "$AGENT_PID" ]; then
@@ -53,7 +81,7 @@ watch_agent() {
       continue
     fi
 
-    if ! $(ps -p $AGENT_PID > /dev/null); then
+    if ! $(ps $AGENT_PID > /dev/null); then
       FAIL=$(($FAIL+1))
     else
       FAIL=0
@@ -98,7 +126,7 @@ timeout 10 bash -c -- "\
     sleep 1; \
   done"
 echo "Watchdog started"
-watch_pid $(cat $WATCHDOG_PID_PATH) $$ &
+watch_pid $(get_watchdog_pid) $$ &
 
 # monitor the agent process and kill the container if it is down for 60s
 watch_agent $$ &
