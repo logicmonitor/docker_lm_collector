@@ -209,6 +209,18 @@ def download_installer(client, collector, params):
         err = 'Exception when calling install_collector: ' + str(e) + '\n'
         util.fail(err)
 
+    # detect cases where we download an invalid installer
+    statinfo = os.stat(resp)
+    if statinfo.st_size < 1000:
+        err = (
+            'Downloaded collector installer is ' +
+            str(statinfo.st_size) + ' bytes. This indicates an issue with ' +
+            'the download process. Most likely the collector_version ' +
+            'is invalid. See ' +
+            'https://www.logicmonitor.com/support/settings/collectors/collector-versions/ ' +
+            'for more information on collector versioning.'
+        )
+        util.fail(err)
     return resp
 
 
