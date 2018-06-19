@@ -67,7 +67,7 @@ watch_agent() {
       continue
     fi
 
-    if ! $(ps -p $AGENT_PID > /dev/null); then
+    if ! $(ps $AGENT_PID > /dev/null); then
       FAIL=$(($FAIL+1))
     else
       FAIL=0
