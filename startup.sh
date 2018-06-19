@@ -35,11 +35,25 @@ watch_pid() {
   PID_FAIL=0
   while true
   do
-    if ! $(ps -p $1 > /dev/null); then
-      # we want to skip cleanup scripts since the collector failed unexpectedly
-      echo -e "Watchdog crashed\nExiting"
-      touch $UNCLEAN_SHUTDOWN_PATH
-      kill -INT $2
+    # echo -e "Checking the health of PID $PID"
+    if ! $(ps $PID > /dev/null); then
+    # if the PID we're watching dies, wait 6 fails to see if the collector
+    # starts up again with a new PID
+      NEW_PID=$(get_agent_pid)
+      if [[ ! -z $NEW_PID && $NEW_PID != $PID ]]; then
+        echo -e "Found new PID $NEW_PID"
+        PID=$NEW_PID
+      else
+        PID_FAIL=$(($PID_FAIL+1))
+        if [ "$PID_FAIL" -ge 6 ]; then
+          # we want to skip cleanup scripts since the collector failed unexpectedly
+          echo -e "Watchdog crashed\nExiting"
+          touch $UNCLEAN_SHUTDOWN_PATH
+          kill -INT $STARTUP_SCRIPT_PID
+        fi
+      fi
+    else
+      PID_FAIL=0
     fi
     sleep 10
   done
