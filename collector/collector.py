@@ -139,7 +139,8 @@ def find_collector_by_description(client, params):
     if collectors.status != 200:
         err = (
             'Error ' + str(collectors.status) +
-            ' calling get_device_list: ' + str(e) + '\n'
+            ' calling get_collector_list: ' +
+            str(collectors.errmsg) + '\n'
         )
         util.fail(err)
 
@@ -172,7 +173,8 @@ def find_collector_group_id(client, collector_group_name):
     if collector_groups.status != 200:
         err = (
             'Error ' + str(collector_groups.status) +
-            ' calling get_collector_group_list: ' + str(e) + '\n'
+            ' calling get_collector_group_list: ' +
+            str(collector_groups.errmsg) + '\n'
         )
         util.fail(err)
 
