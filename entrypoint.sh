@@ -5,7 +5,7 @@ AGENT_BIN=$INSTALL_PATH/bin/logicmonitor-agent
 AGENT_PID_PATH=$INSTALL_PATH/bin/logicmonitor-agent.java.pid
 WATCHDOG_BIN=$INSTALL_PATH/bin/logicmonitor-watchdog
 WATCHDOG_PID_PATH=$INSTALL_PATH/bin/logicmonitor-watchdog.java.pid
-LOG_PATH=$INSTALL_PATH/logs/wrapper.log
+LOG_PATH=$INSTALL_PATH/logs/
 UNCLEAN_SHUTDOWN_PATH=$INSTALL_PATH/unclean_shutdown.lck
 
 # setup handlers
@@ -114,6 +114,7 @@ signal_handler() {
 set -e
 # run application
 python /collector/startup.py
+
 # ensure the collector is stopped so that we can control startup
 $AGENT_BIN stop > /dev/null
 $WATCHDOG_BIN stop > /dev/null
@@ -133,7 +134,10 @@ watch_agent $$ &
 
 while true
 do
-  if [ -f $LOG_PATH ]; then
-    tail -f $LOG_PATH & wait
+  if [[ -f $LOG_PATH/wrapper.log && -f $LOG_PATH/watchdog.log && -f $LOG_PATH/sbproxy.log ]]; then
+    tail -f \
+      $LOG_PATH/watchdog.log \
+      $LOG_PATH/wrapper.log \
+      $LOG_PATH/sbproxy.log & wait
   fi
 done

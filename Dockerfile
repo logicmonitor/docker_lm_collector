@@ -13,6 +13,6 @@ RUN pip install logicmonitor_sdk
 RUN mkdir /usr/local/logicmonitor
 
 ADD collector /collector
-COPY ./startup.sh /startup.sh
+COPY ./entrypoint.sh /entrypoint.sh
 
-ENTRYPOINT ["/startup.sh"]
+ENTRYPOINT ["/entrypoint.sh"]
