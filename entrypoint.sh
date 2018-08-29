@@ -45,7 +45,7 @@ watch_pid() {
         PID=$NEW_PID
       else
         PID_FAIL=$(($PID_FAIL+1))
-        if [ "$PID_FAIL" -ge 6 ]; then
+        if [ "$PID_FAIL" -ge 12 ]; then
           # we want to skip cleanup scripts since the collector failed unexpectedly
           echo -e "Watchdog crashed\nExiting"
           touch $UNCLEAN_SHUTDOWN_PATH
