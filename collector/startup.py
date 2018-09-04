@@ -1,5 +1,6 @@
 import collector
 import config
+import kubernetes
 import logging
 import os
 import param
@@ -10,10 +11,21 @@ import util
 def startup(client, params):
     c = None
 
+    # if the kubernetes param is specified, assume this is part of a
+    # collector set and parse the id accordingly, bypassing other id lookups
+    if params['kubernetes']:
+        logging.debug('Kubernetes mode enabled. Parsing id from environment')
+        collector_id = kubernetes.get_collector_id()
+        logging.debug('Parsed id ' + str(collector_id))
+        params['collector_id'] = collector_id
+
     # detect if the collector already exists in the portal
     f = collector.find_collector(client, params)
     if not f:
         logging.debug('Collector not found')
+        if params['kubernetes']:
+            err = 'Running in kubernetes mode but existing collector not found'
+            util.fail(err)
         c = collector.collector(client, params)
         c = collector.create_collector(client, c)
     else:

@@ -139,7 +139,8 @@ def find_collector_by_description(client, params):
     if collectors.status != 200:
         err = (
             'Error ' + str(collectors.status) +
-            ' calling get_device_list: ' + str(e) + '\n'
+            ' calling get_collector_list: ' +
+            str(collectors.errmsg) + '\n'
         )
         util.fail(err)
 
@@ -172,7 +173,8 @@ def find_collector_group_id(client, collector_group_name):
     if collector_groups.status != 200:
         err = (
             'Error ' + str(collector_groups.status) +
-            ' calling get_collector_group_list: ' + str(e) + '\n'
+            ' calling get_collector_group_list: ' +
+            str(collector_groups.errmsg) + '\n'
         )
         util.fail(err)
 
@@ -209,6 +211,18 @@ def download_installer(client, collector, params):
         err = 'Exception when calling install_collector: ' + str(e) + '\n'
         util.fail(err)
 
+    # detect cases where we download an invalid installer
+    statinfo = os.stat(resp)
+    if statinfo.st_size < 1000:
+        err = (
+            'Downloaded collector installer is ' +
+            str(statinfo.st_size) + ' bytes. This indicates an issue with ' +
+            'the download process. Most likely the collector_version ' +
+            'is invalid. See ' +
+            'https://www.logicmonitor.com/support/settings/collectors/collector-versions/ ' +
+            'for more information on collector versioning.'
+        )
+        util.fail(err)
     return resp
 
 

@@ -186,7 +186,7 @@ docker run --name lm-collector -d \
   -e account=<your portal name> \
   -e access_id=<your api access id> \
   -e access_key=<your api access key> \
-  -e id=16 \
+  -e collector_id=16 \
   -e collector_size=large \
 logicmonitor/collector:latest
 ```

@@ -6,13 +6,14 @@ RUN apt-get update \
   inetutils-traceroute \
   ntp \
   perl \
-&& apt-get -y clean \
-&& rm -rf /var/lib/apt/lists/*
+  procps \
+  && apt-get -y clean \
+  && rm -rf /var/lib/apt/lists/*
 
 RUN pip install logicmonitor_sdk==0.0.1.4
 RUN mkdir /usr/local/logicmonitor
 
-COPY collector /collector
-COPY ./startup.sh /startup.sh
+ADD collector /collector
+COPY ./entrypoint.sh /entrypoint.sh
 
-ENTRYPOINT ["/startup.sh"]
+ENTRYPOINT ["/entrypoint.sh"]
