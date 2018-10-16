@@ -26,22 +26,11 @@ PARAM_OPTS = {
     'collector_group': dict(required=False, default='/'),
     'collector_version': dict(required=False, default=None, type='int'),
     'description': dict(required=False, default=None),
-    'enable_fail_back': dict(
-        required=False,
-        default=False,
-        type='bool'
-    ),
+    'enable_fail_back': dict(required=False, default=False, type='bool'),
     'escalating_chain_id': dict(required=False, default=1, type='int'),
     'collector_id': dict(required=False, default=None, type='int'),
     'resend_interval': dict(required=False, default=15, type='int'),
-    'suppress_alert_clear': dict(
-        required=False,
-        default=False,
-        type='bool'
-    ),
-    'use_ea': dict(
-        required=False,
-        default=False,
-        type='bool'
-    )
+    'suppress_alert_clear': dict(required=False, default=False, type='bool'),
+    'use_ea': dict(required=False, default=False, type='bool'),
+    'kubernetes': dict(required=False, default=False, type='bool')
 }
