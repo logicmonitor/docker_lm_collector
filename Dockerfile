@@ -2,11 +2,12 @@ FROM python:2.7-slim
 
 # NTP is needed for some collector operations
 RUN apt-get update \
-&& apt-get install --no-install-recommends -y \
+  && apt-get install --no-install-recommends -y \
   inetutils-traceroute \
   ntp \
   perl \
   procps \
+  xxd \
   && apt-get -y clean \
   && rm -rf /var/lib/apt/lists/*
 
