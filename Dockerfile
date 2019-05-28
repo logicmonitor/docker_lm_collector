@@ -15,7 +15,7 @@ RUN apt-get update \
 RUN pip install logicmonitor_sdk==0.0.1.4
 RUN mkdir /usr/local/logicmonitor
 
-ADD collector /collector
+COPY collector /collector
 COPY ./entrypoint.sh /entrypoint.sh
 
 ENTRYPOINT ["/entrypoint.sh"]

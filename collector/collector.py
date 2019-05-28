@@ -233,7 +233,6 @@ def install_collector(client, collector, params):
     # ensure installer is executable
     os.chmod(installer, 0755)
 
-    logging.debug('installing ' + str(installer))
     result = util.shell([str(installer), ' -y'])
 
     if result['code'] != 0 or result['stderr'] != '':
