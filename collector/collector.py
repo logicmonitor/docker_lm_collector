@@ -49,7 +49,7 @@ def collector(client, params):
 
 
 def create_collector(client, collector):
-    logging.debug('adding collector')
+    logging.debug('Adding collector')
 
     resp = None
     try:
@@ -72,7 +72,7 @@ def create_collector(client, collector):
 
 
 def delete_collector(client, collector):
-    logging.debug('deleting collector ' + str(collector.id))
+    logging.debug('Deleting collector ' + str(collector.id))
     resp = None
     try:
         resp = client.delete_collector_by_id(str(collector.id))
@@ -101,7 +101,7 @@ def find_collector(client, params):
 
 
 def find_collector_by_id(client, id):
-    logging.debug('finding collector ' + str(id))
+    logging.debug('Finding collector ' + str(id))
 
     collector = None
     try:
@@ -127,7 +127,7 @@ def find_collector_by_description(client, params):
     if 'description' not in params or not params['description']:
         return None
 
-    logging.debug('finding collector ' + str(params['description']))
+    logging.debug('Finding collector ' + str(params['description']))
 
     collectors = None
     try:
@@ -152,7 +152,7 @@ def find_collector_by_description(client, params):
 
 
 def find_collector_group_id(client, collector_group_name):
-    logging.debug('finding collector group ' + str(collector_group_name))
+    logging.debug('Finding collector group ' + str(collector_group_name))
 
     # if the root group is set, no need to search
     if collector_group_name == '/':
@@ -186,7 +186,7 @@ def find_collector_group_id(client, collector_group_name):
 
 
 def download_installer(client, collector, params):
-    logging.debug('downloading collector ' + str(collector.id))
+    logging.debug('Downloading collector ' + str(collector.id))
 
     os_and_arch = None
     if sys.maxsize > 2**32:
@@ -208,7 +208,7 @@ def download_installer(client, collector, params):
             **kwargs
         )
     except ApiException as e:
-        err = 'Exception when calling install_collector: ' + str(e) + '\n'
+        err = 'exception when calling install_collector: ' + str(e) + '\n'
         util.fail(err)
 
     # detect cases where we download an invalid installer
