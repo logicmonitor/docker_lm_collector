@@ -7,6 +7,10 @@ import socket
 import sys
 import util
 
+# TODO this var and the logic that depends on it can be removed after non-root
+# installer makes it to MGD
+MIN_NONROOT_INSTALL_VER = 28300
+
 
 def collector(client, params):
     obj = None
@@ -233,8 +237,20 @@ def install_collector(client, collector, params):
     # ensure installer is executable
     os.chmod(installer, 0755)
 
-    result = util.shell([str(installer), ' -y'])
+    install_cmd = [
+        str(installer), '-y'
+    ]
 
+    # force update the collector object to ensure all details are up to date
+    # e.g. build version
+    collector = find_collector_by_id(client, collector.id)
+
+    # if this is a newer installer that defaults to non-root user, force root
+    logging.debug('Collector version ' + str(collector.build))
+    if int(collector.build) >= MIN_NONROOT_INSTALL_VER:
+        install_cmd.extend(['-u', 'root'])
+
+    result = util.shell(install_cmd)
     if result['code'] != 0 or result['stderr'] != '':
         err = result['stderr']
         # if we failed but there's no stderr, set err msg to stdout
