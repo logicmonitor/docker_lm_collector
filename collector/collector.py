@@ -205,6 +205,9 @@ def download_installer(client, collector, params):
     }
     if 'collector_version' in params and params['collector_version']:
         kwargs['collector_version'] = params['collector_version']
+    # if the collector already exists and has a version, download that version
+    elif collector.build != 0 and not kwargs['use_ea']:
+        kwargs['collector_version'] = collector.build
     try:
         resp = client.install_collector(
             str(collector.id),
