@@ -4,6 +4,7 @@ FROM python:2.7-slim
 RUN apt-get update \
   && apt-get install --no-install-recommends -y \
   inetutils-traceroute \
+  iputils-ping \
   ntp \
   perl \
   procps \
@@ -14,7 +15,7 @@ RUN apt-get update \
 RUN pip install logicmonitor_sdk==0.0.1.4
 RUN mkdir /usr/local/logicmonitor
 
-ADD collector /collector
+COPY collector /collector
 COPY ./entrypoint.sh /entrypoint.sh
 
 ENTRYPOINT ["/entrypoint.sh"]
