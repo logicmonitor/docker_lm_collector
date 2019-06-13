@@ -6,6 +6,7 @@ import os
 import socket
 import sys
 import util
+import urlparse
 
 # TODO this var and the logic that depends on it can be removed after non-root
 # installer makes it to MGD
@@ -252,6 +253,20 @@ def install_collector(client, collector, params):
     logging.debug('Collector version ' + str(collector.build))
     if int(collector.build) >= MIN_NONROOT_INSTALL_VER:
         install_cmd.extend(['-u', 'root'])
+
+    if params['proxy_url'] is not None and params['proxy_url'] != "":
+        parse_result = urlparse.urlparse(params['proxy_url'])
+        proxy_url = parse_result.scheme + "://" + parse_result.hostname
+        if parse_result.port is not None:
+            proxy_url += ":" + str(parse_result.port)
+        install_cmd.extend(['-p', params['proxy_url']])
+
+        proxy_user = parse_result.username
+        proxy_pass = parse_result.password
+        if proxy_user is not None:
+            install_cmd.extend(['-U', proxy_user])
+        if proxy_pass is not None:
+            install_cmd.extend(['-P', proxy_pass])
 
     result = util.shell(install_cmd)
     if result['code'] != 0 or result['stderr'] != '':

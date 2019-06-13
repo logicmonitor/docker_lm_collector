@@ -16,6 +16,8 @@ PARAM_OPTS = {
     'access_id': dict(required=True, default=None),
     'access_key': dict(required=True, default=None),
 
+    'proxy_url': dict(required=False, default=None),
+
     'backup_collector_id': dict(required=False, default=None, type='int'),
     'collector_size': dict(
         required=False,
