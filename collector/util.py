@@ -18,6 +18,7 @@ def fail(err):
 #   takes an array of arguments and optionally custom current working directory
 #   returns dict of {'code': return code, 'stdout': stdout, 'stderr': stderr}
 def shell(cmd, cwd=None):
+    logging.debug('Running command ' + ' '.join(cmd))
     result = {}
     result['code'] = -1
     result['stdout'] = ''

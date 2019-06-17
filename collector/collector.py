@@ -7,6 +7,10 @@ import socket
 import sys
 import util
 
+# TODO this var and the logic that depends on it can be removed after non-root
+# installer makes it to MGD
+MIN_NONROOT_INSTALL_VER = 28300
+
 
 def collector(client, params):
     obj = None
@@ -49,7 +53,7 @@ def collector(client, params):
 
 
 def create_collector(client, collector):
-    logging.debug('adding collector')
+    logging.debug('Adding collector')
 
     resp = None
     try:
@@ -72,7 +76,7 @@ def create_collector(client, collector):
 
 
 def delete_collector(client, collector):
-    logging.debug('deleting collector ' + str(collector.id))
+    logging.debug('Deleting collector ' + str(collector.id))
     resp = None
     try:
         resp = client.delete_collector_by_id(str(collector.id))
@@ -101,7 +105,7 @@ def find_collector(client, params):
 
 
 def find_collector_by_id(client, id):
-    logging.debug('finding collector ' + str(id))
+    logging.debug('Finding collector ' + str(id))
 
     collector = None
     try:
@@ -127,7 +131,7 @@ def find_collector_by_description(client, params):
     if 'description' not in params or not params['description']:
         return None
 
-    logging.debug('finding collector ' + str(params['description']))
+    logging.debug('Finding collector ' + str(params['description']))
 
     collectors = None
     try:
@@ -152,7 +156,7 @@ def find_collector_by_description(client, params):
 
 
 def find_collector_group_id(client, collector_group_name):
-    logging.debug('finding collector group ' + str(collector_group_name))
+    logging.debug('Finding collector group ' + str(collector_group_name))
 
     # if the root group is set, no need to search
     if collector_group_name == '/':
@@ -186,7 +190,7 @@ def find_collector_group_id(client, collector_group_name):
 
 
 def download_installer(client, collector, params):
-    logging.debug('downloading collector ' + str(collector.id))
+    logging.debug('Downloading collector ' + str(collector.id))
 
     os_and_arch = None
     if sys.maxsize > 2**32:
@@ -201,6 +205,9 @@ def download_installer(client, collector, params):
     }
     if 'collector_version' in params and params['collector_version']:
         kwargs['collector_version'] = params['collector_version']
+    # if the collector already exists and has a version, download that version
+    elif collector.build != 0 and not kwargs['use_ea']:
+        kwargs['collector_version'] = collector.build
     try:
         resp = client.install_collector(
             str(collector.id),
@@ -208,7 +215,7 @@ def download_installer(client, collector, params):
             **kwargs
         )
     except ApiException as e:
-        err = 'Exception when calling install_collector: ' + str(e) + '\n'
+        err = 'exception when calling install_collector: ' + str(e) + '\n'
         util.fail(err)
 
     # detect cases where we download an invalid installer
@@ -233,9 +240,20 @@ def install_collector(client, collector, params):
     # ensure installer is executable
     os.chmod(installer, 0755)
 
-    logging.debug('installing ' + str(installer))
-    result = util.shell([str(installer), ' -y'])
+    install_cmd = [
+        str(installer), '-y'
+    ]
 
+    # force update the collector object to ensure all details are up to date
+    # e.g. build version
+    collector = find_collector_by_id(client, collector.id)
+
+    # if this is a newer installer that defaults to non-root user, force root
+    logging.debug('Collector version ' + str(collector.build))
+    if int(collector.build) >= MIN_NONROOT_INSTALL_VER:
+        install_cmd.extend(['-u', 'root'])
+
+    result = util.shell(install_cmd)
     if result['code'] != 0 or result['stderr'] != '':
         err = result['stderr']
         # if we failed but there's no stderr, set err msg to stdout
