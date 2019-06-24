@@ -4,6 +4,7 @@ FROM python:2.7-slim
 RUN apt-get update \
   && apt-get install --no-install-recommends -y \
   inetutils-traceroute \
+  file \
   iputils-ping \
   ntp \
   perl \
