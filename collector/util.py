@@ -7,12 +7,16 @@ import shutil
 import subprocess
 from subprocess import Popen
 import sys
+import signal
 
 
 def fail(err):
     logging.error(err)
     sys.exit(1)
 
+
+def default_sigpipe():
+    signal.signal(signal.SIGPIPE, signal.SIG_DFL)
 
 # execute a local shell command
 #   takes an array of arguments and optionally custom current working directory
@@ -28,6 +32,7 @@ def shell(cmd, cwd=None):
         p = (Popen(cmd,
                    stdout=subprocess.PIPE,
                    stderr=subprocess.PIPE,
+                   preexec_fn=default_sigpipe,
                    cwd=cwd)
              )
         stdout, stderr = p.communicate()
