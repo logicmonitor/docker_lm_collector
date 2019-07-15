@@ -162,6 +162,38 @@ False
 ##### type:
 bool
 
+### proxy_host:
+##### description:
+The host of the proxy server
+##### required:
+false
+##### default:
+null
+
+### proxy_port:
+##### description:
+The proxy port of the proxy server 
+##### required:
+false
+##### default:
+null
+
+### proxy_user:
+##### description:
+username to authenticate to proxy server
+##### required:
+false
+##### default:
+null
+
+### proxy_pass:
+##### description:
+password to authenticate to proxy server
+##### required:
+false
+##### default:
+null
+
 ## Examples
 ### Creating a new collector
 ```
@@ -178,6 +210,10 @@ docker run --name lm-collector -d \
   -e resend_interval=60 \
   -e suppress_alert_clear=no \
   -e cleanup=true \
+  -e proxy_host=<your proxy host> \
+  -e proxy_port=<your proxy port> \
+  -e proxy_user=<your proxy user> \
+  -e proxy_pass=<your proxy password> \
 logicmonitor/collector:latest
 ```
 ### Installing an existing collector
@@ -188,5 +224,9 @@ docker run --name lm-collector -d \
   -e access_key=<your api access key> \
   -e collector_id=16 \
   -e collector_size=large \
+  -e proxy_host=<your proxy host> \
+  -e proxy_port=<your proxy port> \
+  -e proxy_user=<your proxy user> \
+  -e proxy_pass=<your proxy password> \
 logicmonitor/collector:latest
 ```
