@@ -1,3 +1,6 @@
+import urllib3
+from urllib3.util import url
+
 import config
 import logging
 import logicmonitor_sdk as lm_sdk
@@ -90,5 +93,52 @@ def get_client(params):
     lm_sdk.configuration.api_key['Authorization'] = params['access_key']
     lm_sdk.configuration.temp_folder_path = config.TEMP_PATH
 
+    # setting proxy
+    proxy = parse_proxy(params)
+    proxy_auth = None
+    if proxy is not None:
+        proxy_url = proxy["netloc"]
+        proxy_auth = proxy["auth"]
+        lm_sdk.configuration.proxy = proxy_url
+        logging.debug('Using proxy: ' + proxy_url)
+
     # create an instance of the API class
-    return lm_sdk.DefaultApi(lm_sdk.ApiClient())
+    api_client = lm_sdk.ApiClient()
+
+    # The configuration does not support setting proxy_headers, we only set it after creating the api client
+    # TODO: if we upgrade SDK in the future, we can consider letting configuration support proxy_headers setting
+    if proxy_auth is not None and proxy_auth != '':
+        proxy_headers = urllib3.make_headers(proxy_basic_auth=proxy_auth)
+        api_client.rest_client.pool_manager.proxy_headers = proxy_headers
+        api_client.rest_client.pool_manager.connection_pool_kw['_proxy_headers'] = proxy_headers
+    return lm_sdk.DefaultApi(api_client)
+
+
+def parse_proxy(params):
+    proxy_host = params['proxy_host']
+    if proxy_host is None or proxy_host == '':
+        return None
+    parse_result = url.parse_url(proxy_host)
+    scheme = parse_result.scheme or 'http'
+    host = parse_result.hostname
+    port = params['proxy_port']
+    user = params['proxy_user']
+    password = params['proxy_pass']
+    auth = None
+    host_addr = host
+
+    if user is not None and user != '':
+        auth = str(user)
+        if password is not None and password != '':
+            auth += ':' + str(password)
+
+    if port is not None and port != '':
+        host_addr += ':' + str(port)
+    return {'scheme': scheme,
+            'host': host,
+            'port': port,
+            'user': user,
+            'pass': password,
+            'auth': auth,
+            'host_addr': host_addr,
+            'netloc': '%s://%s' % (scheme, host_addr)}
