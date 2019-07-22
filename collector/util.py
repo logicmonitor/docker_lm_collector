@@ -115,13 +115,13 @@ def get_client(params):
 
 
 def parse_proxy(params):
-    proxy_host = params['proxy_host']
-    if proxy_host is None or proxy_host == '':
+    proxy_url = params['proxy_url']
+    if proxy_url is None or proxy_url == '':
         return None
-    parse_result = url.parse_url(proxy_host)
+    parse_result = url.parse_url(proxy_url)
     scheme = parse_result.scheme or 'http'
     host = parse_result.hostname
-    port = params['proxy_port']
+    port = parse_result.port
     user = params['proxy_user']
     password = params['proxy_pass']
     auth = None
@@ -132,7 +132,7 @@ def parse_proxy(params):
         if password is not None and password != '':
             auth += ':' + str(password)
 
-    if port is not None and port != '':
+    if port is not None:
         host_addr += ':' + str(port)
     return {'scheme': scheme,
             'host': host,

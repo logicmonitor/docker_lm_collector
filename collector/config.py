@@ -33,8 +33,7 @@ PARAM_OPTS = {
     'suppress_alert_clear': dict(required=False, default=False, type='bool'),
     'use_ea': dict(required=False, default=False, type='bool'),
     'kubernetes': dict(required=False, default=False, type='bool'),
-    'proxy_host': dict(required=False, default=None),
-    'proxy_port': dict(required=False, default=None),
+    'proxy_url': dict(required=False, default=None),
     'proxy_user': dict(required=False, default=None),
     'proxy_pass': dict(required=False, default=None)
 }
