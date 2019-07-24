@@ -32,5 +32,8 @@ PARAM_OPTS = {
     'resend_interval': dict(required=False, default=15, type='int'),
     'suppress_alert_clear': dict(required=False, default=False, type='bool'),
     'use_ea': dict(required=False, default=False, type='bool'),
-    'kubernetes': dict(required=False, default=False, type='bool')
+    'kubernetes': dict(required=False, default=False, type='bool'),
+    'proxy_url': dict(required=False, default=None),
+    'proxy_user': dict(required=False, default=None),
+    'proxy_pass': dict(required=False, default=None)
 }
