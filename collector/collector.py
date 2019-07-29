@@ -253,6 +253,17 @@ def install_collector(client, collector, params):
     if int(collector.build) >= MIN_NONROOT_INSTALL_VER or params['use_ea']:
         install_cmd.extend(['-u', 'root'])
 
+    proxy = util.parse_proxy(params)
+    if proxy is not None:
+        proxy_addr = proxy['host_addr']
+        proxy_user = proxy['user']
+        proxy_pass = proxy['pass']
+        install_cmd.extend(['-p', proxy_addr])
+        if proxy_user is not None and proxy_user != '':
+            install_cmd.extend(['-U', proxy_user])
+            if proxy_pass is not None and proxy_pass != '':
+                install_cmd.extend(['-P', proxy_pass])
+
     result = util.shell(install_cmd)
     if result['code'] != 0 or result['stderr'] != '':
         err = result['stderr']
