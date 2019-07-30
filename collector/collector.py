@@ -250,7 +250,7 @@ def install_collector(client, collector, params):
 
     # if this is a newer installer that defaults to non-root user, force root
     logging.debug('Collector version ' + str(collector.build))
-    if int(collector.build) >= MIN_NONROOT_INSTALL_VER:
+    if int(collector.build) >= MIN_NONROOT_INSTALL_VER or params['use_ea']:
         install_cmd.extend(['-u', 'root'])
 
     proxy = util.parse_proxy(params)
@@ -275,12 +275,12 @@ def install_collector(client, collector, params):
         logging.debug('stdout: ' + str(result['stdout']))
         logging.debug('stderr: ' + str(result['stderr']))
         logging.debug('Cleaning up collector install directory')
-        util.remove_path(config.INSTALL_PATH + config.AGENT_DIRECTORY)
+        # util.remove_path(config.INSTALL_PATH + config.AGENT_DIRECTORY)
         fail = True
 
     # be nice and clean up
     logging.debug('Cleaning up downloaded installer')
-    util.remove_path(installer)
+    # util.remove_path(installer)
 
     if fail:
         util.fail(err)
