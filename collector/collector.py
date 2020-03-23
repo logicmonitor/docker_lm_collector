@@ -6,6 +6,7 @@ import os
 import socket
 import sys
 import util
+import json
 
 # TODO this var and the logic that depends on it can be removed after non-root
 # installer makes it to MGD
@@ -221,21 +222,51 @@ def download_installer(client, collector, params):
     # detect cases where we download an invalid installer
     statinfo = os.stat(resp)
     if statinfo.st_size < 1000:
-        err = (
-            'Downloaded collector installer is ' +
-            str(statinfo.st_size) + ' bytes. This indicates an issue with ' +
-            'the download process. Most likely the collector_version ' +
-            'is invalid. See ' +
-            'https://www.logicmonitor.com/support/settings/collectors/collector-versions/ ' +
-            'for more information on collector versioning.'
-        )
-        util.fail(err)
-    return resp
+        # DEV-56585
+        try:
+            downloaded_response = json.load(open(resp, "r"))
+            if 'errmsg' in downloaded_response:
+                error_message = downloaded_response['errmsg']
+            else:
+                error_message = str(downloaded_response)
+            # check if download failed because of outdated version
+            if "only those versions" in error_message.lower():
+                err = (
+                    'Downloaded collector installer is ' +
+                    str(statinfo.st_size) + ' bytes. This indicates an issue with ' +
+                    'the download process. Most likely the collector_version ' +
+                    str(kwargs['collector_version']) + ' is invalid/out-dated. See ' +
+                    'https://www.logicmonitor.com/support/settings/collectors/collector-versions/ ' +
+                    'for more information on collector versioning.'
+                )
+                logging.debug(err)
+                return None, "version error"
+            else:
+                err = (
+                    'Downloaded collector installer is ' +
+                    str(statinfo.st_size) + ' bytes. ' +
+                    'error message - ' + error_message
+                )
+                util.fail(err)
+        except Exception, e:
+            util.fail("Error while downloading collector - %s"%(str(e)))
+    logging.debug("Download successful - %s, size - %s"%(resp,str(statinfo.st_size)))
+    return resp, None
 
 
 def install_collector(client, collector, params):
     fail = False
-    installer = download_installer(client, collector, params)
+
+    current_version = collector.build
+    installer, err = download_installer(client, collector, params)
+    if not installer and err == 'version error':
+        # get the latest stable release if not force require EA version;
+        collector.build = params['collector_version'] = 0
+        log_msg = 'retry to get latest available collector version'
+        logging.debug(log_msg)
+        installer, err = download_installer(client, collector, params)
+        if not installer:
+            util.fail(err)
 
     # ensure installer is executable
     os.chmod(installer, 0755)
@@ -246,11 +277,12 @@ def install_collector(client, collector, params):
 
     # force update the collector object to ensure all details are up to date
     # e.g. build version
-    collector = find_collector_by_id(client, collector.id)
+    if collector.build != 0:
+        collector = find_collector_by_id(client, collector.id)
+        logging.debug('Collector version ' + str(collector.build))
 
     # if this is a newer installer that defaults to non-root user, force root
-    logging.debug('Collector version ' + str(collector.build))
-    if int(collector.build) >= MIN_NONROOT_INSTALL_VER or params['use_ea']:
+    if int(collector.build) >= MIN_NONROOT_INSTALL_VER or params['use_ea'] or int(collector.build == 0):
         install_cmd.extend(['-u', 'root'])
 
     proxy = util.parse_proxy(params)
@@ -271,12 +303,18 @@ def install_collector(client, collector, params):
         if err == '':
             err = result['stdout']
 
-        logging.debug('Collector install failed')
-        logging.debug('stdout: ' + str(result['stdout']))
-        logging.debug('stderr: ' + str(result['stderr']))
-        logging.debug('Cleaning up collector install directory')
-        # util.remove_path(config.INSTALL_PATH + config.AGENT_DIRECTORY)
-        fail = True
+        # check for false fail condition
+        success_msg = 'LogicMonitor Collector has been installed successfully'
+        if err.lower().strip().strip('\n') == 'unknown option: u' and \
+            success_msg.lower() in str(result['stdout']).lower():
+            fail = False
+        else:
+            logging.debug('Collector install failed')
+            logging.debug('stdout: ' + str(result['stdout']))
+            logging.debug('stderr: ' + str(result['stderr']))
+            logging.debug('Cleaning up collector install directory')
+            # util.remove_path(config.INSTALL_PATH + config.AGENT_DIRECTORY)
+            fail = True
 
     # be nice and clean up
     logging.debug('Cleaning up downloaded installer')
@@ -284,3 +322,21 @@ def install_collector(client, collector, params):
 
     if fail:
         util.fail(err)
+    else:
+        # log message if version is outdated
+        try:
+            if os.path.isfile(config.INSTALL_STAT_PATH):
+                with open(config.INSTALL_STAT_PATH) as install_stat:
+                    for line in install_stat:
+                        if 'complexInfo=' in line:
+                            key, val = line.partition("=")[::2]
+                            complexInfo = json.loads(val.strip('\n'))
+                            collector_version = complexInfo['collector']['version'].strip()
+                            if str(collector_version) != str(current_version):
+                                upgrade_msg = 'Requested collector version %s ' \
+                                              'is outdated so upgraded to %s' \
+                                              ' version '
+                                upgrade_msg = upgrade_msg%(str(current_version), str(collector_version))
+                                logging.info(upgrade_msg)
+        except:
+            pass
