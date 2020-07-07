@@ -43,6 +43,10 @@ def shell(cmd, cwd=None):
         result['stdout'] = stdout or ''
         result['stderr'] = stderr or ''
 
+    except Exception as ex:
+        result['code'] = -1
+        result['stderr'] = 'Shell execution error: ' + str(ex)
+    
     except:
         result['code'] = -1
         result['stderr'] = 'Shell execution error'
