@@ -272,7 +272,7 @@ def install_collector(client, collector, params):
     os.chmod(installer, 0755)
 
     install_cmd = [
-        'sh', str(installer), '-y'
+        str(installer), '-y'
     ]
 
     # force update the collector object to ensure all details are up to date
@@ -310,7 +310,6 @@ def install_collector(client, collector, params):
             fail = False
         else:
             logging.debug('Collector install failed')
-            logging.debug('error code: ' + str(result['code']))
             logging.debug('stdout: ' + str(result['stdout']))
             logging.debug('stderr: ' + str(result['stderr']))
             logging.debug('Cleaning up collector install directory')
