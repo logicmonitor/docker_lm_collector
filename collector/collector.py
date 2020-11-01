@@ -249,8 +249,9 @@ def download_installer(client, collector, params):
                 )
                 util.fail(err)
         except Exception, e:
-            util.fail("Error while downloading collector - %s"%(str(e)))
-    logging.debug("Download successful - %s, size - %s"%(resp,str(statinfo.st_size)))
+            util.fail("Error while downloading collector - %s" % (str(e)))
+    logging.debug("Download successful - %s, size - %s" %
+                  (resp, str(statinfo.st_size)))
     return resp, None
 
 
@@ -272,7 +273,7 @@ def install_collector(client, collector, params):
     os.chmod(installer, 0755)
 
     install_cmd = [
-        str(installer), '-y'
+        str(installer), '-y', '-m'
     ]
 
     # force update the collector object to ensure all details are up to date
@@ -306,7 +307,7 @@ def install_collector(client, collector, params):
         # check for false fail condition
         success_msg = 'LogicMonitor Collector has been installed successfully'
         if err.lower().strip().strip('\n') == 'unknown option: u' and \
-            success_msg.lower() in str(result['stdout']).lower():
+                success_msg.lower() in str(result['stdout']).lower():
             fail = False
         else:
             logging.debug('Collector install failed')
@@ -331,12 +332,14 @@ def install_collector(client, collector, params):
                         if 'complexInfo=' in line:
                             key, val = line.partition("=")[::2]
                             complexInfo = json.loads(val.strip('\n'))
-                            collector_version = complexInfo['collector']['version'].strip()
+                            collector_version = complexInfo['collector']['version'].strip(
+                            )
                             if str(collector_version) != str(current_version):
                                 upgrade_msg = 'Requested collector version %s ' \
                                               'is outdated so upgraded to %s' \
                                               ' version '
-                                upgrade_msg = upgrade_msg%(str(current_version), str(collector_version))
+                                upgrade_msg = upgrade_msg % (
+                                    str(current_version), str(collector_version))
                                 logging.info(upgrade_msg)
         except:
             pass

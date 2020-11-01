@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+test -e /etc/profile.d/pyenv.sh && source /etc/profile.d/pyenv.sh 
 
 INSTALL_PATH=/usr/local/logicmonitor/agent
 AGENT_BIN=$INSTALL_PATH/bin/logicmonitor-agent

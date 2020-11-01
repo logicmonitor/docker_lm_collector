@@ -1,0 +1,19 @@
+version: '3.5'
+
+services:
+  collector:
+    build:
+      context: .
+      dockerfile: Dockerfile.centos8
+      network: host
+    image: ac3lmc:centos8v1
+    environment:
+      account: ac3sandbox
+      access_id: 'CpYX5FJGK78RTDE76mI9'
+      access_key: '%mVtsXW}4~57ehM{DPU8q2F^aq%3b2jB4E^7pSpP'
+      collector_size: large
+      enable_fail_back: 'true'
+      cleanup: 'true'
+      description: 'docker-compose test 1'
+    restart: unless-stopped
+    network_mode: 'host'

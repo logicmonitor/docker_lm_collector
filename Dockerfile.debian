@@ -1,0 +1,20 @@
+FROM debian:buster-slim
+ENV LANG=C.UTF-8 PYENV_ROOT=/opt/pyenv PATH=/opt/pyenv/bin:/opt/pyenv/shims:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends git bash make build-essential libssl-dev zlib1g-dev libbz2-dev libreadline-dev libsqlite3-dev wget curl llvm libncurses5-dev xz-utils tk-dev libxml2-dev libxmlsec1-dev libffi-dev liblzma-dev ca-certificates xxd file inetutils-traceroute file iputils-ping ntp perl procps  && \
+    rm -rf /var/lib/apt/lists/*
+
+RUN git clone https://github.com/pyenv/pyenv.git /opt/pyenv && \
+    echo 'export PYENV_ROOT="/opt/pyenv"' >> /etc/profile.d/pyenv.sh && \
+    echo 'export PATH="$PYENV_ROOT/bin:$PATH"' >> /etc/profile.d/pyenv.sh && \
+    echo 'eval "$(pyenv init -)"' >> /etc/profile.d/pyenv.sh
+
+RUN . /etc/profile.d/pyenv.sh && pyenv install 2.7.18 && pyenv global 2.7.18 && pyenv exec pip install logicmonitor_sdk==0.0.1.4
+RUN mkdir /usr/local/logicmonitor && \
+    echo '2.7.18' > /usr/local/logicmonitor/.python-version
+
+COPY collector /collector
+COPY entrypoint.sh /entrypoint.sh
+
+#ENTRYPOINT ["/entrypoint.sh"]
