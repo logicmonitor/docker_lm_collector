@@ -3,7 +3,7 @@ ENV LANG=C.UTF-8 PYENV_ROOT=/opt/pyenv PATH=/opt/pyenv/bin:/opt/pyenv/shims:/usr
 
 RUN dnf install -y git make gcc zlib-devel bzip2 bzip2-devel initscripts \
     readline-devel sqlite sqlite-devel openssl-devel tk-devel libffi-devel \
-    traceroute file iputils procps vim chrony && \
+    traceroute file iputils procps vim chrony ntp && \
     dnf clean all && rm -rf /var/cache/yum/* /var/lib/yum/repos/*
 
 RUN git clone https://github.com/pyenv/pyenv.git /opt/pyenv && \
