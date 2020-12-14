@@ -16,6 +16,13 @@ RUN ln -s /usr/lib64/libsasl2.so.3 /usr/lib64/libsasl2.so.2
 RUN cd /tmp && curl -O https://assets.nagios.com/downloads/nagiosxi/agents/wmic_1.3.16_static_64bit.tar.gz && \
     tar -C /usr/local/bin/ -xaf /tmp/wmic_1.3.16_static_64bit.tar.gz
 
+RUN dnf install -y make clang libcmpiCppImpl0 diffutils libevent-devel && \
+    cd /tmp && curl -fsLO https://archive.ntp.org/ntp4/ntp-4.2/ntp-4.2.8p15.tar.gz && \
+    tar -xzf ntp-4.2.8p15.tar.gz && cd ntp-4.2.8p15 && \
+    ./configure && \
+    make && make PREFIX=/usr/local install && \
+    dnf remove -y clang
+
 RUN source /etc/profile.d/pyenv.sh && pyenv install 2.7.18 && pyenv global 2.7.18 && pyenv exec pip install logicmonitor_sdk==0.0.1.4
 RUN mkdir /usr/local/logicmonitor && \
     echo '2.7.18' > /usr/local/logicmonitor/.python-version
