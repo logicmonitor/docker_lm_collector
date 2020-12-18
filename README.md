@@ -78,6 +78,8 @@ The size of the Collector to install:
 - small requires 2GB memory
 - medium requires 4GB memory
 - large requires 8GB memory
+- extra_large requires 16GB memory
+- double_extra_large requires 32GB memory
 
 ##### required:
 false
@@ -88,6 +90,9 @@ small
 - small
 - medium
 - large
+- extra_large
+- double_extra_large
+
 
 ### collector_version:
 ##### description:
