@@ -21,7 +21,7 @@ PARAM_OPTS = {
     'collector_size': dict(
         required=False,
         default='small',
-        choices=['nano', 'small', 'medium', 'large']
+        choices=['nano', 'small', 'medium', 'large', 'extra_large', 'double_extra_large']
     ),
     'cleanup': dict(required=False, default=False, type='bool'),
     'collector_group': dict(required=False, default='/'),
