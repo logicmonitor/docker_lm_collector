@@ -204,6 +204,11 @@ def download_installer(client, collector, params):
         'collector_size': params['collector_size'],
         'use_ea': params['use_ea']
     }
+    if not kwargs['use_ea']:
+        if 'extra_large' in kwargs['collector_size'] or 'double_extra_large' in kwargs['collector_size']:
+            err = 'exception when calling installer because only EA collector version support ' + kwargs['collector_size'] + ' collector size. Set \"use_ea\" parameter or use another collector size.\n'
+            util.fail(err)
+
     if 'collector_version' in params and params['collector_version']:
         kwargs['collector_version'] = params['collector_version']
     # if the collector already exists and has a version, download that version
