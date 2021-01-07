@@ -1,0 +1,27 @@
+name: Send notifications to Slack when a PR reviewer is assigned
+on:
+  pull_request:
+    types: [review_requested]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Pull the action
+      uses: actions/checkout@v2
+      with:
+        repository: ac3cloud/github-slack-notifier
+        ref: refs/heads/main
+        ssh-key: ${{ secrets.PUPPET_SSH_KEY }}
+        persist-credentials: false
+        path: ./.github/actions/github-slack-notifier
+    - name: Action notifier
+      uses: ./.github/actions/github-slack-notifier
+      id: notifier
+      with:
+        SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+        SLACK_CUSTOM_FIELD: ${{ secrets.SLACK_CUSTOM_FIELD }}
+        S3_CACHE_BUCKET: ${{ secrets.SLACK_S3_CACHE_BUCKET }}
+      env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.SLACK_AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.SLACK_AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: ${{ secrets.SLACK_AWS_DEFAULT_REGION }}
