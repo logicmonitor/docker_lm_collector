@@ -191,6 +191,14 @@ false
 ##### default:
 null
 
+### ignore_ssl:
+##### description:
+Set flag to ignore ssl/tls validation
+##### required:
+false
+##### default:
+false
+
 ## Examples
 ### Creating a new collector
 ```

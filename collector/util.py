@@ -92,7 +92,9 @@ def get_client(params):
     lm_sdk.configuration.api_key['id'] = params['access_id']
     lm_sdk.configuration.api_key['Authorization'] = params['access_key']
     lm_sdk.configuration.temp_folder_path = config.TEMP_PATH
-
+    if params['ignore_ssl']:
+        lm_sdk.configuration.verify_ssl = False
+    
     # setting proxy
     proxy = parse_proxy(params)
     proxy_auth = None
@@ -101,7 +103,7 @@ def get_client(params):
         proxy_auth = proxy["auth"]
         lm_sdk.configuration.proxy = proxy_url
         logging.debug('Using proxy: ' + proxy_url)
-
+        
     # create an instance of the API class
     api_client = lm_sdk.ApiClient()
 

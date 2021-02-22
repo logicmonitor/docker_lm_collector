@@ -36,5 +36,6 @@ PARAM_OPTS = {
     'kubernetes': dict(required=False, default=False, type='bool'),
     'proxy_url': dict(required=False, default=None),
     'proxy_user': dict(required=False, default=None),
-    'proxy_pass': dict(required=False, default=None)
+    'proxy_pass': dict(required=False, default=None),
+    'ignore_ssl': dict(required=False, default=False, type='bool')
 }

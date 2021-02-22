@@ -320,6 +320,8 @@ def install_collector(client, collector, params):
             logging.debug('Cleaning up collector install directory')
             # util.remove_path(config.INSTALL_PATH + config.AGENT_DIRECTORY)
             fail = True
+    if params['ignore_ssl']:
+        util.shell(['sed', '-i', 's/EnforceLogicMonitorSSL=true/EnforceLogicMonitorSSL=false/g','/usr/local/logicmonitor/agent/conf/agent.conf'])
 
     # be nice and clean up
     logging.debug('Cleaning up downloaded installer')
