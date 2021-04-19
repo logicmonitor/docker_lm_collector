@@ -21,7 +21,7 @@ PARAM_OPTS = {
     'collector_size': dict(
         required=False,
         default='small',
-        choices=['nano', 'small', 'medium', 'large']
+        choices=['nano', 'small', 'medium', 'large', 'extra_large', 'double_extra_large']
     ),
     'cleanup': dict(required=False, default=False, type='bool'),
     'collector_group': dict(required=False, default='/'),
@@ -36,5 +36,6 @@ PARAM_OPTS = {
     'kubernetes': dict(required=False, default=False, type='bool'),
     'proxy_url': dict(required=False, default=None),
     'proxy_user': dict(required=False, default=None),
-    'proxy_pass': dict(required=False, default=None)
+    'proxy_pass': dict(required=False, default=None),
+    'ignore_ssl': dict(required=False, default=False, type='bool')
 }

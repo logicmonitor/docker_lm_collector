@@ -204,6 +204,11 @@ def download_installer(client, collector, params):
         'collector_size': params['collector_size'],
         'use_ea': params['use_ea']
     }
+    if not kwargs['use_ea']:
+        if 'extra_large' in kwargs['collector_size'] or 'double_extra_large' in kwargs['collector_size']:
+            err = 'Cannot proceed with installation because only Early Access collector versions support ' + kwargs['collector_size'] + 'size. To proceed further with installation, set \"use_ea\" parameter to true or use appropriate collector size.\n'
+            util.fail(err)
+
     if 'collector_version' in params and params['collector_version']:
         kwargs['collector_version'] = params['collector_version']
     # if the collector already exists and has a version, download that version
@@ -315,6 +320,8 @@ def install_collector(client, collector, params):
             logging.debug('Cleaning up collector install directory')
             # util.remove_path(config.INSTALL_PATH + config.AGENT_DIRECTORY)
             fail = True
+    if params['ignore_ssl']:
+        util.shell(['sed', '-i', 's/EnforceLogicMonitorSSL=true/EnforceLogicMonitorSSL=false/g','/usr/local/logicmonitor/agent/conf/agent.conf'])
 
     # be nice and clean up
     logging.debug('Cleaning up downloaded installer')
