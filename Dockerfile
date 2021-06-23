@@ -1,4 +1,4 @@
-FROM python:2.7-slim
+FROM python:3.9-slim
 
 # NTP is needed for some collector operations
 RUN apt-get update \
@@ -13,7 +13,7 @@ RUN apt-get update \
   && apt-get -y clean \
   && rm -rf /var/lib/apt/lists/*
 
-RUN pip install logicmonitor_sdk==0.0.1.4
+RUN pip install logicmonitor_sdk==1.0.129
 RUN mkdir /usr/local/logicmonitor
 
 COPY collector /collector
