@@ -9,6 +9,9 @@ import util
 
 
 def startup(client, params):
+    if not params['kubernetes'] and not params['collector_id'] and not params['description']:
+        err = 'Collector Id or Description must be present.'
+        util.fail(err)
     c = None
 
     # if the kubernetes param is specified, assume this is part of a
