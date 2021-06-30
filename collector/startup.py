@@ -9,6 +9,9 @@ import util
 
 
 def startup(client, params):
+    if not params['kubernetes'] and not params['collector_id'] and not params['description']:
+        err = '"collector_id" or "description" must be set in non kubernetes environments.'
+        util.fail(err)
     c = None
 
     # if the kubernetes param is specified, assume this is part of a
