@@ -13,9 +13,9 @@ def main():
     params = param.parse_params()
     # DON'T DELETE EXISTING COLLECTOR IF COLLECTOR_ID SPECIFIED
     if (
-        not os.path.isfile(config.COLLECTOR_FOUND) and
-        'cleanup' in params and
-        params['cleanup']
+            not os.path.isfile(config.COLLECTOR_FOUND) and
+            'cleanup' in params and
+            params['cleanup']
     ):
         client = util.get_client(params)
         c = collector.find_collector(client, params)

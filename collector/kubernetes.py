@@ -30,9 +30,9 @@ def get_collector_id():
 
     if len(collector_ids) < set_index + 1:
         err = (
-            'Set index ' + str(set_index) +
-            ' is greater than number of collector ids ' +
-            str(len(collector_ids)) + '\n'
+                'Set index ' + str(set_index) +
+                ' is greater than number of collector ids ' +
+                str(len(collector_ids)) + '\n'
         )
         util.fail(err)
     return collector_ids[set_index]

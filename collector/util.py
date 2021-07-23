@@ -21,6 +21,7 @@ def fail(err):
 def default_sigpipe():
     signal.signal(signal.SIGPIPE, signal.SIG_DFL)
 
+
 # execute a local shell command
 #   takes an array of arguments and optionally custom current working directory
 #   returns dict of {'code': return code, 'stdout': stdout, 'stderr': stderr}
@@ -85,27 +86,25 @@ def cleanup():
 
 def get_client(params):
     # Configure API key authorization: LMv1
-    lm_sdk.configuration.host = lm_sdk.configuration.host.replace(
-        'localhost',
-        params['account'] + '.logicmonitor.com'
-    )
-    lm_sdk.configuration.api_key['id'] = params['access_id']
-    lm_sdk.configuration.api_key['Authorization'] = params['access_key']
-    lm_sdk.configuration.temp_folder_path = config.TEMP_PATH
+    conf = lm_sdk.configuration.Configuration()
+    conf.company = params['account']
+    conf.access_id = params['access_id']
+    conf.access_key = params['access_key']
+    conf.temp_folder_path = config.TEMP_PATH
     if params['ignore_ssl']:
-        lm_sdk.configuration.verify_ssl = False
-    
+        conf.verify_ssl = False
+
     # setting proxy
     proxy = parse_proxy(params)
     proxy_auth = None
     if proxy is not None:
         proxy_url = proxy["netloc"]
         proxy_auth = proxy["auth"]
-        lm_sdk.configuration.proxy = proxy_url
+        conf.proxy = proxy_url
         logging.debug('Using proxy: ' + proxy_url)
-        
+
     # create an instance of the API class
-    api_client = lm_sdk.ApiClient()
+    api_client = lm_sdk.ApiClient(configuration=conf)
 
     # The configuration does not support setting proxy_headers, we only set it after creating the api client
     # TODO: if we upgrade SDK in the future, we can consider letting configuration support proxy_headers setting
@@ -113,7 +112,7 @@ def get_client(params):
         proxy_headers = urllib3.make_headers(proxy_basic_auth=proxy_auth)
         api_client.rest_client.pool_manager.proxy_headers = proxy_headers
         api_client.rest_client.pool_manager.connection_pool_kw['_proxy_headers'] = proxy_headers
-    return lm_sdk.DefaultApi(api_client)
+    return lm_sdk.LMApi(api_client)
 
 
 def parse_proxy(params):

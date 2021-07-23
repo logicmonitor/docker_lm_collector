@@ -1,3 +1,7 @@
+import gzip
+import re
+import tempfile
+
 import config
 import logging
 import logicmonitor_sdk as lm_sdk
@@ -41,12 +45,12 @@ def collector(client, params):
         kwargs['collector_group_id'] = collector_group
     else:
         err = (
-            'Collecor group ' + params['collector_group'] +
-            ' does not exist.'
+                'Collector group ' + params['collector_group'] +
+                ' does not exist.'
         )
         util.fail(err)
     try:
-        obj = lm_sdk.RestCollector(**kwargs)
+        obj = lm_sdk.Collector(**kwargs)
         return obj
     except Exception as e:
         err = 'Exception creating object: ' + str(e) + '\n'
@@ -55,47 +59,39 @@ def collector(client, params):
 
 def create_collector(client, collector):
     logging.debug('Adding collector')
-
-    resp = None
+    response = None
     try:
-        resp = client.add_collector(collector)
+        response = client.add_collector(collector)
     except ApiException as e:
-        err = 'Exception when calling add_collector: ' + str(e) + '\n'
-        util.fail(err)
-
-    if resp.status != 200:
-        if resp.status == 600:
+        resp = json.loads(e.body)
+        if e.status == 600:
             # Status 600: The record already exists
             return collector
-
         err = (
-            'Status ' + str(resp.status) + ' calling add_collector\n' +
-            str(resp.errmsg)
+                'Exception when calling add_collector: ' + str(e) + '\n'
+                                                                    'Status ' + str(e.status) + ' Error Message ' + str(
+            resp['errorMessage'])
         )
         util.fail(err)
-    return resp.data
+    return response
 
 
 def delete_collector(client, collector):
     logging.debug('Deleting collector ' + str(collector.id))
-    resp = None
+    response = None
     try:
-        resp = client.delete_collector_by_id(str(collector.id))
+        response = client.delete_collector_by_id(str(collector.id))
     except ApiException as e:
+        err = 'Exception when calling delete_collector_by_id: ' + str(e) + '\n'
+        util.fail(err)
+    if response.status != 200:
         err = (
-            'Exception when calling delete_collector_by_id: ' + str(e) +
-            '\n'
+                'Status ' + str(response.status) +
+                ' calling delete_collector_by_id\n' +
+                str(response.errmsg)
         )
         util.fail(err)
-
-    if resp.status != 200:
-        err = (
-            'Status ' + str(resp.status) +
-            ' calling delete_collector_by_id\n' +
-            str(resp.errmsg)
-        )
-        util.fail(err)
-    return resp.data
+    return response
 
 
 def find_collector(client, params):
@@ -107,25 +103,21 @@ def find_collector(client, params):
 
 def find_collector_by_id(client, id):
     logging.debug('Finding collector ' + str(id))
-
     collector = None
     try:
         collector = client.get_collector_by_id(str(id))
     except ApiException as e:
-        err = 'Exception when calling get_collector_by_id: ' + str(e) + '\n'
-        util.fail(err)
-
-    if collector.status != 200:
-        if collector.status == 1069:
-            # Status 1069: No such agent
+        resp = json.loads(e.body)
+        if e.status == 1404:
+            # Status 1404: No such agent
             return None
-
         err = (
-            'Status ' + str(collector.status) +
-            ' calling find_collector_by_id\n' + str(collector.errmsg)
+                'Exception when calling get_collector_by_id: ' + str(e) + '\n'
+                                                                          'Status ' + str(
+            e.status) + ' Error Message ' + str(resp['errorMessage'])
         )
         util.fail(err)
-    return collector.data
+    return collector
 
 
 def find_collector_by_description(client, params):
@@ -138,19 +130,16 @@ def find_collector_by_description(client, params):
     try:
         collectors = client.get_collector_list(size=-1)
     except ApiException as e:
-        err = 'Exception when calling get_collector_list: ' + str(e) + '\n'
-        util.fail(err)
-
-    if collectors.status != 200:
-        err = (
-            'Error ' + str(collectors.status) +
-            ' calling get_collector_list: ' +
-            str(collectors.errmsg) + '\n'
-        )
-        util.fail(err)
-
+        resp = json.loads(e.body)
+        if e.status != 200:
+            err = (
+                    'Exception when calling get_collector_list: ' + str(e) + '\n'
+                                                                             'Status ' + str(
+                e.status) + ' Error Message ' + str(resp['errorMessage'])
+            )
+            util.fail(err)
     if 'description' in params and params['description']:
-        for item in collectors.data.items:
+        for item in collectors.items:
             if item.description == params['description']:
                 return item
     return None
@@ -170,21 +159,16 @@ def find_collector_group_id(client, collector_group_name):
     try:
         collector_groups = client.get_collector_group_list(size=-1)
     except ApiException as e:
-        err = (
-            'Exception when calling get_collector_group_list: ' + str(e) + '\n'
-        )
-        util.fail(err)
-
-    if collector_groups.status != 200:
-        err = (
-            'Error ' + str(collector_groups.status) +
-            ' calling get_collector_group_list: ' +
-            str(collector_groups.errmsg) + '\n'
-        )
-        util.fail(err)
-
+        resp = json.loads(e.body)
+        if e.status != 200:
+            err = (
+                    'Exception when calling get_collector_group_list: ' + str(e) + '\n'
+                                                                                   'Status ' + str(
+                e.status) + ' Error Message ' + str(resp['errorMessage'])
+            )
+            util.fail(err)
     # look for matching collector group
-    for item in collector_groups.data.items:
+    for item in collector_groups.items:
         if item.name == collector_group_name:
             return item.id
     return None
@@ -194,19 +178,19 @@ def download_installer(client, collector, params):
     logging.debug('Downloading collector ' + str(collector.id))
 
     os_and_arch = None
-    if sys.maxsize > 2**32:
+    if sys.maxsize > 2 ** 32:
         os_and_arch = config.DEFAULT_OS + '64'
     else:
         os_and_arch = config.DEFAULT_OS + '32'
 
-    resp = None
     kwargs = {
         'collector_size': params['collector_size'],
         'use_ea': params['use_ea']
     }
     if not kwargs['use_ea']:
         if 'extra_large' in kwargs['collector_size'] or 'double_extra_large' in kwargs['collector_size']:
-            err = 'Cannot proceed with installation because only Early Access collector versions support ' + kwargs['collector_size'] + 'size. To proceed further with installation, set \"use_ea\" parameter to true or use appropriate collector size.\n'
+            err = 'Cannot proceed with installation because only Early Access collector versions support ' + kwargs[
+                'collector_size'] + 'size. To proceed further with installation, set \"use_ea\" parameter to true or use appropriate collector size.\n'
             util.fail(err)
 
     if 'collector_version' in params and params['collector_version']:
@@ -215,53 +199,51 @@ def download_installer(client, collector, params):
     elif collector.build != 0 and not kwargs['use_ea']:
         kwargs['collector_version'] = collector.build
     try:
-        resp = client.install_collector(
+        response = client.get_collector_installer(
             str(collector.id),
             os_and_arch,
             **kwargs
         )
     except ApiException as e:
-        err = 'exception when calling install_collector: ' + str(e) + '\n'
-        util.fail(err)
-
-    # detect cases where we download an invalid installer
-    statinfo = os.stat(resp)
-    if statinfo.st_size < 1000:
-        # DEV-56585
-        try:
-            downloaded_response = json.load(open(resp, "r"))
-            if 'errmsg' in downloaded_response:
-                error_message = downloaded_response['errmsg']
-            else:
-                error_message = str(downloaded_response)
-            # check if download failed because of outdated version
-            if "only those versions" in error_message.lower():
-                err = (
-                    'Downloaded collector installer is ' +
-                    str(statinfo.st_size) + ' bytes. This indicates an issue with ' +
-                    'the download process. Most likely the collector_version ' +
+        err = 'exception when calling get_collector_installer: ' + str(e) + '\n'
+        # check if download failed because of outdated version
+        error_message = str(e.body)
+        if "only those versions" in error_message.lower():
+            err = (
+                    error_message +
+                    ' Most likely the collector_version ' +
                     str(kwargs['collector_version']) + ' is invalid/out-dated. See ' +
                     'https://www.logicmonitor.com/support/settings/collectors/collector-versions/ ' +
                     'for more information on collector versioning.'
-                )
-                logging.debug(err)
-                return None, "version error"
-            else:
-                err = (
-                    'Downloaded collector installer is ' +
-                    str(statinfo.st_size) + ' bytes. ' +
-                    'error message - ' + error_message
-                )
-                util.fail(err)
-        except Exception, e:
-            util.fail("Error while downloading collector - %s"%(str(e)))
-    logging.debug("Download successful - %s, size - %s"%(resp,str(statinfo.st_size)))
-    return resp, None
+            )
+            logging.debug(err)
+            return None, "version error"
+
+        util.fail(str(err))
+        return
+    fd, path = tempfile.mkstemp(dir=client.api_client.configuration.temp_folder_path)
+    content_disposition = response.getheader("Content-Disposition")
+    if content_disposition:
+        filename = re.search(r'filename=[\'"]?([^\'"\s]+)[\'"]?',
+                             content_disposition).group(1)
+        path = os.path.join(os.path.dirname(path), filename)
+    else:
+        filename = "logicmonitorsetupx64_" + str(collector.id) + ".bin"
+        path = os.path.join(client.api_client.configuration.temp_folder_path, filename)
+        logging.warning("Could not form filename using response headers")
+
+    with open(path, "wb") as f:
+        f.write(response.data)
+
+    # detect cases where we download an invalid installer
+    statinfo = os.stat(path)
+
+    logging.debug("Download successful - size - %s" % (str(statinfo.st_size)))
+    return path, None
 
 
 def install_collector(client, collector, params):
     fail = False
-
     current_version = collector.build
     installer, err = download_installer(client, collector, params)
     if not installer and err == 'version error':
@@ -274,7 +256,7 @@ def install_collector(client, collector, params):
             util.fail(err)
 
     # ensure installer is executable
-    os.chmod(installer, 0755)
+    os.chmod(installer, 0o755)
 
     install_cmd = [
         str(installer), '-y'
@@ -311,7 +293,7 @@ def install_collector(client, collector, params):
         # check for false fail condition
         success_msg = 'LogicMonitor Collector has been installed successfully'
         if err.lower().strip().strip('\n') == 'unknown option: u' and \
-            success_msg.lower() in str(result['stdout']).lower():
+                success_msg.lower() in str(result['stdout']).lower():
             fail = False
         else:
             logging.debug('Collector install failed')
@@ -321,7 +303,8 @@ def install_collector(client, collector, params):
             # util.remove_path(config.INSTALL_PATH + config.AGENT_DIRECTORY)
             fail = True
     if params['ignore_ssl']:
-        util.shell(['sed', '-i', 's/EnforceLogicMonitorSSL=true/EnforceLogicMonitorSSL=false/g','/usr/local/logicmonitor/agent/conf/agent.conf'])
+        util.shell(['sed', '-i', 's/EnforceLogicMonitorSSL=true/EnforceLogicMonitorSSL=false/g',
+                    '/usr/local/logicmonitor/agent/conf/agent.conf'])
 
     # be nice and clean up
     logging.debug('Cleaning up downloaded installer')
@@ -343,7 +326,7 @@ def install_collector(client, collector, params):
                                 upgrade_msg = 'Requested collector version %s ' \
                                               'is outdated so upgraded to %s' \
                                               ' version '
-                                upgrade_msg = upgrade_msg%(str(current_version), str(collector_version))
+                                upgrade_msg = upgrade_msg % (str(current_version), str(collector_version))
                                 logging.info(upgrade_msg)
         except:
             pass

@@ -8,7 +8,7 @@ def parse_params():
     params = {}
     errors = []
 
-    for param, meta in config.PARAM_OPTS.iteritems():
+    for param, meta in config.PARAM_OPTS.items():
         params[param], success, err = parse_param(param, meta)
         if not success:
             errors.append(err)
@@ -41,8 +41,8 @@ def parse_param(param, meta):
 
     if not check_choices(value, meta):
         return None, False, (
-            'Value for ' + param + ' must be one of ' +
-            ','.join(meta['choices'])
+                'Value for ' + param + ' must be one of ' +
+                ','.join(meta['choices'])
         )
     return value, True, None
 
