@@ -1,16 +1,16 @@
-import gzip
-import re
-import tempfile
-
-import config
+import json
 import logging
-import logicmonitor_sdk as lm_sdk
-from logicmonitor_sdk.rest import ApiException
 import os
+import re
 import socket
 import sys
+import tempfile
+
+import logicmonitor_sdk as lm_sdk
+from logicmonitor_sdk.rest import ApiException
+
+import config
 import util
-import json
 
 # TODO this var and the logic that depends on it can be removed after non-root
 # installer makes it to MGD
@@ -285,7 +285,9 @@ def install_collector(client, collector, params):
 
     result = util.shell(install_cmd)
     if result['code'] != 0 or result['stderr'] != '':
-        err = result['stderr']
+        logging.DEBUG("Collector install script output: " + err)
+        err = str(result['stderr'])
+        err.encode('utf-8')
         # if we failed but there's no stderr, set err msg to stdout
         if err == '':
             err = result['stdout']
