@@ -285,7 +285,7 @@ def install_collector(client, collector, params):
 
     result = util.shell(install_cmd)
     if result['code'] != 0 or result['stderr'] != '':
-        logging.DEBUG("Collector install script output: " + err)
+        logging.DEBUG("Collector install script output: " + str(err))
         err = str(result['stderr'])
         err.encode('utf-8')
         # if we failed but there's no stderr, set err msg to stdout
