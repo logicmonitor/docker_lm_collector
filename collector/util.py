@@ -12,7 +12,6 @@ from subprocess import Popen
 import sys
 import signal
 
-
 def fail(err):
     logging.error(err)
     sys.exit(1)
@@ -26,7 +25,17 @@ def default_sigpipe():
 #   takes an array of arguments and optionally custom current working directory
 #   returns dict of {'code': return code, 'stdout': stdout, 'stderr': stderr}
 def shell(cmd, cwd=None):
-    logging.debug('Running command ' + ' '.join(cmd))
+    masked_cmd = []
+    i = 0
+    while i < len(cmd):
+        if cmd[i] == '-P':
+            masked_cmd.append(cmd[i])
+            masked_cmd.append('*****')
+            i = i + 1
+        else:
+            masked_cmd.append(cmd[i])
+        i = i + 1
+    logging.debug('Running command ' + ' '.join(masked_cmd))
     result = {}
     result['code'] = -1
     result['stdout'] = ''
