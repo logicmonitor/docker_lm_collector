@@ -22,7 +22,7 @@ def collector(client, params):
     kwargs = {
         'enable_fail_back': params['enable_fail_back'],
         'escalating_chain_id': params['escalating_chain_id'],
-        'need_auto_create_collector_device': False
+        'need_auto_create_collector_device': params['need_auto_create_collector_device']
     }
 
     if 'backup_collector_id' in params and params['backup_collector_id']:
