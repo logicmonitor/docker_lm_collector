@@ -1,4 +1,4 @@
-FROM python:3.9-slim
+FROM python:3.10-slim
 
 # NTP is needed for some collector operations
 RUN apt-get update \
