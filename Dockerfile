@@ -16,7 +16,8 @@ RUN apt-get update \
   python3-pip \
   && apt-get -y clean \
   && rm -rf /var/lib/apt/lists/* \
-  && ln -s /usr/bin/python3.10 /usr/bin/python
+  && ln -s /usr/bin/python3.10 /usr/bin/python \
+  && pip config set global.target /usr/local/lib/python3.10/dist-packages
 
 RUN pip install logicmonitor_sdk==1.0.129
 RUN mkdir /usr/local/logicmonitor
