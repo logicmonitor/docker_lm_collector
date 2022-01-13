@@ -285,13 +285,13 @@ def install_collector(client, collector, params):
 
     result = util.shell(install_cmd)
     if result['code'] != 0 or result['stderr'] != '':
-        logging.DEBUG("Collector install script output: " + str(err))
         err = str(result['stderr'])
         # err = result['stderr']
         # if we failed but there's no stderr, set err msg to stdout
         if err == '':
             err = str(result['stdout'])
         err.encode('utf-8')
+        logging.DEBUG("Collector install script output: " + str(err))
 
         # check for false fail condition
         success_msg = 'LogicMonitor Collector has been installed successfully'
