@@ -1,8 +1,10 @@
-FROM python:3.9-slim
+FROM ubuntu:22.04
+ENV DEBIAN_FRONTEND noninteractive
 
 # NTP is needed for some collector operations
 RUN apt-get update \
   && apt-get install --no-install-recommends -y \
+  tcl \
   inetutils-traceroute \
   file \
   iputils-ping \
@@ -10,8 +12,11 @@ RUN apt-get update \
   perl \
   procps \
   xxd \
+  python3.10 \
+  python3-pip \
   && apt-get -y clean \
-  && rm -rf /var/lib/apt/lists/*
+  && rm -rf /var/lib/apt/lists/* \
+  && ln -s /usr/bin/python3.10 /usr/bin/python
 
 RUN pip install logicmonitor_sdk==1.0.129
 RUN mkdir /usr/local/logicmonitor
