@@ -2,7 +2,9 @@ FROM ubuntu:20.04
 ENV DEBIAN_FRONTEND noninteractive
 
 # NTP is needed for some collector operations
-RUN apt-get update \
+RUN apt update && apt-get update \
+  && apt install software-properties-common -y \
+  && add-apt-repository ppa:deadsnakes/ppa \
   && apt-get install --no-install-recommends -y \
   tcl \
   inetutils-traceroute \
