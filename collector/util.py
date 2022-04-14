@@ -50,8 +50,9 @@ def shell(cmd, cwd=None):
              )
         stdout, stderr = p.communicate()
         result['code'] = p.returncode
-        result['stdout'] = stdout or ''
-        result['stderr'] = stderr or ''
+        # Python3 returns byte objects on stdout and stderr. Decode them to return str
+        result['stdout'] = stdout.decode("utf-8", errors="replace")
+        result['stderr'] = stderr.decode("utf-8", errors="replace")
 
     except:
         result['code'] = -1
