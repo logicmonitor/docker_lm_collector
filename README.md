@@ -1,3 +1,4 @@
+> :warning: **Archived**: We are no more maintainig this codebase. See docker images on docker hub or respective public repositories where logicmonitor host/push images.
 # LogicMonitor Collector
 
 ## Overview
